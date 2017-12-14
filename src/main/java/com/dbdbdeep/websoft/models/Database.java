@@ -50,6 +50,28 @@ public class Database {
 		}
 	}
 	
+	public Object[] selectColumns(String sql, Object... args) throws SQLException {
+		try(Connection conn = getConnection();
+		    PreparedStatement stmt = conn.prepareStatement(sql)) {
+			for(int i = 0; i < args.length; i++) {
+				stmt.setObject(i + 1, args[i]);
+			}
+			try(ResultSet rs = stmt.executeQuery()) {
+				if(rs.next()) {
+					ResultSetMetaData rsmd = rs.getMetaData();
+					int count = rsmd.getColumnCount();
+					Object[] result = new Object[count];
+					for(int i = 1; i <= count; i++) {
+						result[i-1] = rs.getObject(i);
+					}
+					return result;
+				} else {
+					return null;
+				}
+			}
+		}
+	}
+	
 	public int update(String sql, Object... args) throws SQLException {
 		try(Connection conn = getConnection();
 		    PreparedStatement stmt = conn.prepareStatement(sql)) {
