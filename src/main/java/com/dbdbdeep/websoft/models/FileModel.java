@@ -14,8 +14,11 @@ public class FileModel {
         else return new FileModel(id);
     }
 
-    public static FileModel getFile(int parent, String fileName)  {
-        //...
+    public static FileModel getFile(int parent, String fileName) throws SQLException  {
+        Database db = Database.getDatabase();
+        Object idColumn = db.selectColumns("SELECT parent, file_name FROM file WHERE parent=? AND file_name=?", parent, fileName);
+        if(idColumn == null) return null;
+        else return new FileModel((Integer) idColumn);
     }
 
     public static FileModel create(int parent, String fileName, int owner, Date uploadTime, byte[] contents) throws SQLException {
@@ -56,40 +59,36 @@ public class FileModel {
         return id;
     }
 
-    public String getFileName(){
-        // fileName = select fileName from file where filename=filename
-        // return filename;
+    public String getFileName() throws SQLException {
+        return (String) Database.getDatabase().selectSingleColumn("SELECT file_name FROM file WHERE id=?", this.id);
     }
 
-    public void setFileName(String fileName){
-        //...
+    public void setFileName(String fileName) throws SQLException {
+        Database.getDatabase().update("UPDATE file SET file_name=? WHERE id=?", fileName, this.id);
     }
 
-    public int getOwner(){
-        // owner = select owner from file where id=id
-        // return owner;
+    public int getOwner() throws SQLException {
+        return (Integer) Database.getDatabase().selectSingleColumn("SELECT owner FROM file WHERE id=?", this.id);
     }
 
-    public void setOwner(int owner){
-        //...
+    public void setOwner(int owner) throws SQLException {
+        Database.getDatabase().update("UPDATE file SET owner=? WHERE id=?", owner, this.id);
     }
 
-    public Date getUploadTime(){
-        // uploadTime = select uploadtime from file where id=id
-        // return uploadTime;
+    public Date getUploadTime() throws SQLException {
+        return (Date) Database.getDatabase().selectSingleColumn("SELECT upload_time FROM file WHERE id=?", this.id);
     }
 
-    public void setUploadTime(Date uploadTime){
-        //...
+    public void setUploadTime(Date uploadTime) throws SQLException {
+        Database.getDatabase().update("UPDATE file SET upload_time=? WHERE id=?", uploadTime, this.id);
     }
 
-    public byte[] getContents(){
-        // contents = select contents from file where id=id
-        // return contents;
+    public byte[] getContents() throws SQLException {
+        return (byte[]) Database.getDatabase().selectSingleColumn("SELECT contents FROM file WHERE id=?", this.id);
     }
 
-    public void setContents(byte[] contents){
-        //...
+    public void setContents(byte[] contents) throws SQLException {
+        Database.getDatabase().update("UPDATE file SET contents=? WHERE id=?", contents, this.id);
     }
 
 }
