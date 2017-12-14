@@ -54,6 +54,10 @@ public class UserModel {
 		this.id = id;
 	}
 	
+	public int getId() {
+		return id;
+	}
+	
 	public String getUsername() throws SQLException {
 		return (String) Database.getDatabase().selectSingleColumn("SELECT username FROM user WHERE id=?", this.id);
 	}
