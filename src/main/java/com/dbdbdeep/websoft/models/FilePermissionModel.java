@@ -16,7 +16,7 @@ public class FilePermissionModel{
                             "permittable tinyint(1) not null default 0," +
                             "primary key(file_id, user_id)," +
                             "foreign key(file_id) references file(id) on delete cascade," +
-                            "foreign key(user_id) references user(id) on delete cascade," +
+                            "foreign key(user_id) references user(id) on delete cascade" +
                             ");"
             );
             stmt.execute();
