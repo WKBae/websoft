@@ -9,8 +9,8 @@
         <module name="websoft" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="websoft" target="1.5" />
+    <bytecodeTargetLevel target="1.8">
+      <module name="websoft" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
