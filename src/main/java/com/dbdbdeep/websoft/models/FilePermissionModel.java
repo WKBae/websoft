@@ -46,7 +46,7 @@ public class FilePermissionModel{
     }
 
     public boolean isReadable() throws SQLException{
-        return Boolean.TRUE.equals(Database.getDatabase().selectColumn("SELECT readable FROM file_permission WHERE file_id=? AND user_id=?", this.fileId, this.userId));
+        return Boolean.TRUE.equals(Database.getDatabase().selectSingleColumn("SELECT readable FROM file_permission WHERE file_id=? AND user_id=?", this.fileId, this.userId));
     }
 
     public void setReadable(boolean readable) throws SQLException{
@@ -54,7 +54,7 @@ public class FilePermissionModel{
     }
 
     public boolean isPermittable() throws SQLException{
-        return Boolean.TRUE.equals(Database.getDatabase().selectColumn("SELECT permittable FROM file_permission WHERE file_id=? AND user_id=?", this.fileId, this.userId));
+        return Boolean.TRUE.equals(Database.getDatabase().selectSingleColumn("SELECT permittable FROM file_permission WHERE file_id=? AND user_id=?", this.fileId, this.userId));
     }
 
     public void setPermittable(boolean permittable) throws SQLException{
