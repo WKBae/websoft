@@ -1,45 +1,64 @@
 package com.dbdbdeep.websoft.models;
 
-public class FilePermissionModel {
-    public static FilePermissionModel get(FileModel fileModel, UserModel userModel) {
-        // select .. from file where (FileModel.getId=fileId) and (UserModel.getId=userId)
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-        return new FilePermissionModel(fileModel, userModel);
+public class FilePermissionModel{
+    public static FilePermissionModel get(FileModel fileModel, UserModel userModel) throws SQLException{
+        Database db = Database.getDatabase();
+        Object idColumn = db.selectColumn("SELECT file_id, user_id FROM file_permission WHERE file_id=? AND user_id=?", fileModel.getId(), userModel.getId());
+        if(idColumn == null) return null;
+
+        else return new FilePermissionModel(fileModel.getId(), userModel.getId());
     }
 
-    public static FilePermissionModel create(FileModel fileModel, UserModel userModel, boolean readable, boolean permittable) {
-        // insert into file_permission values (...)xzc
-        // return new FilePermission(fileModel, userModel);
+    public static FilePermissionModel create(FileModel fileModel, UserModel userModel, boolean readable, boolean permittable) throws SQLException{
+        Database db = Database.getDatabase();
+        try(Connection conn = db.getConnection()) {
+            PreparedStatement stmt = conn.prepareStatement(
+                    "INSERT INTO file_permission (file_id, user_id, readable, permittable) VALUES (?, ?, ?, ?, ?)");
+            stmt.setInt(1, fileModel.getId());
+            stmt.setInt(2, userModel.getId());
+            stmt.setBoolean(3, readable);
+            stmt.setBoolean(4, permittable);
+
+            int updatedRows = stmt.executeUpdate();
+            if(updatedRows < 1) return null;
+            else return FilePermissionModel(fileModel.getId(), userModel.getId());
+        }
     }
 
     private final int fileId, userId;
 
-    public int getFileId(){
-        // fileId = select fileId from file_permission where id=id
-        // return fileId;
+    private FilePermissionModel(int fileId, int userId){
+        this.fileId = fileId;
+        this.userId = userId;
     }
 
-    public int getUserId(){
-        // userId = select userId from file_permission where id=id
-        // return userId;
+    public FileModel getFile() throws SQLException{
+        return FileModel.get(fileId);
     }
 
-    public boolean isReadable() {
-        // isReadable = select is_readable from file_permission where id=id
-        // return isReadable;
+    public UserModel getUser() throws SQLException{
+        return UserModel.get(userId);
     }
 
-    public void setReadable(boolean readable) {
-        // update file_permission set is_readable=? where id=id
+    public boolean isReadable() throws SQLException{
+        return Boolean.TRUE.equals(Database.getDatabase().selectColumn("SELECT readable FROM file_permission WHERE file_id=? AND user_id=?", this.fileId, this.userId));
     }
 
-    public boolean isPermittable() {
-        // isPermittable = select is_permittable from file_permission where id=id
-        // return isPermittalbe;
+    public void setReadable(boolean readable) throws SQLException{
+        Database.getDatabase().update("UPDATE readable SET readable=? WHERE file_id=? AND user_id=?", readable, this.fileId, this.userId);
     }
 
-    public void setPermittable(boolean permittable) {
-        // update user set is_permittable=? where id=id
+    public boolean isPermittable() throws SQLException{
+        return Boolean.TRUE.equals(Database.getDatabase().selectColumn("SELECT permittable FROM file_permission WHERE file_id=? AND user_id=?", this.fileId, this.userId));
+    }
+
+    public void setPermittable(boolean permittable) throws SQLException{
+        Database.getDatabase().update("UPDATE readable SET readable=? WHERE file_id=? AND user_id=?", permittable, this.fileId, this.userId);
     }
 
 }
