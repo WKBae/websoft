@@ -2,25 +2,31 @@ package com.dbdbdeep.websoft.models;
 
 public class UserModel {
 	
-	public static UserModel get(String id) {
+	public static UserModel get(int id) {
 		// select .. from user where id=id
 		// return new UserModel / return null
 		return new UserModel(id);
 	}
 	
-	public static UserModel create(String id, String password, String name, String email, boolean isAdmin) {
-		// insert into user values (...)
-		return new UserModel(id);
+	public static UserModel getUser(String username) {
+		// select .. from user where username=username
+		// return new UserModel(id);
 	}
 	
-	private final String id;
+	public static UserModel create(String username, String password, String name, String email, boolean isAdmin) {
+		// insert into user values (...)
+		// return new UserModel(id);
+	}
 	
-	private UserModel(String id) {
+	private final int id;
+	
+	private UserModel(int id) {
 		this.id = id;
 	}
 	
-	public String getId() {
-		return id;
+	public String getUsername() {
+		// username = select username from user where username=username
+		// return username;
 	}
 	
 	public String getPassword() {
