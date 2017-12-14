@@ -25,7 +25,7 @@ public class FilePermissionModel{
 
     public static FilePermissionModel get(FileModel fileModel, UserModel userModel) throws SQLException{
         Database db = Database.getDatabase();
-        Object idColumn = db.selectColumn("SELECT file_id, user_id FROM file_permission WHERE file_id=? AND user_id=?", fileModel.getId(), userModel.getId());
+        Object idColumn = db.selectColumns("SELECT file_id, user_id FROM file_permission WHERE file_id=? AND user_id=?", fileModel.getId(), userModel.getId());
         if(idColumn == null) return null;
 
         else return new FilePermissionModel(fileModel.getId(), userModel.getId());
