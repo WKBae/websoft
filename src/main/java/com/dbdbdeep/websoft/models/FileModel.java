@@ -7,6 +7,26 @@ import java.lang.String;
 
 public class FileModel {
 
+    public static void createTable() throws SQLException {
+        try(Connection conn = Database.getDatabase().getConnection()) {
+            PreparedStatement stmt = conn.prepareStatement(
+                    "CREATE TABLE IF NOT EXISTS file (" +
+                            "id INT NOT NULL AUTO_INCREMENT," +
+                            "parent INT NOT NULL," +
+                            "file_name VARCHAR(100) NOT NULL," +
+                            "owner INT NOT NULL," +
+                            "upload_time DATE NOT NULL DEFAULT CURRENT_TIMESTAMP ," +
+                            "contents BLOB NOT NULL," +
+                            "PRIMARY KEY (id)," +
+                            "FOREIGN KEY (parent) REFERENCES folder(id) ON DELETE CASCADE ,"+
+                            "FOREIGN KEY (owener) REFERENCES user(id) ON DELETE CASCADE"+
+                            "UNIQUE (parent, file_name)" +
+                            ");"
+            );
+            stmt.execute();
+        }
+    }
+
     public static FileModel get(int id) throws SQLException {
         Database db = Database.getDatabase();
         Object idColumn = db.selectSingleColumn("SELECT id FROM file WHERE id=?", id);
