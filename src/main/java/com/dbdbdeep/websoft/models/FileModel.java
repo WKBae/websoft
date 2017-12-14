@@ -15,11 +15,11 @@ public class FileModel {
                             "parent INT NOT NULL," +
                             "file_name VARCHAR(100) NOT NULL," +
                             "owner INT NOT NULL," +
-                            "upload_time DATE NOT NULL DEFAULT CURRENT_TIMESTAMP ," +
+                            "upload_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ," +
                             "contents BLOB NOT NULL," +
                             "PRIMARY KEY (id)," +
                             "FOREIGN KEY (parent) REFERENCES folder(id) ON DELETE CASCADE ,"+
-                            "FOREIGN KEY (owener) REFERENCES user(id) ON DELETE CASCADE"+
+                            "FOREIGN KEY (owener) REFERENCES user(id) ON DELETE CASCADE,"+
                             "UNIQUE (parent, file_name)" +
                             ");"
             );
@@ -51,7 +51,7 @@ public class FileModel {
             stmt.setInt(1, parent);
             stmt.setString(2, fileName);
             stmt.setInt(3, owner);
-            stmt.setDate(4, new java.sql.Date(uploadTime.getTime()));
+            stmt.setTimestamp(4, new Timestamp(uploadTime.getTime()));
             stmt.setBytes(5, contents);
 
             int updatedRows = stmt.executeUpdate();
@@ -74,17 +74,14 @@ public class FileModel {
         this.id = id;
     }
 
-
-    public int getId(){
-        return id;
-    }
+    public int getId(){ return id; }
 
     public int getParent() throws SQLException {
         return (Integer) Database.getDatabase().selectSingleColumn("SELECT parent FROM file WHERE id=?", this.id);
     }
 
     public void setParent(FolderModel parent) throws SQLException {
-        Database.getDatabase().update("UPDATE file SET parent=? WHERE id=?", parent.getId, this.id);
+        Database.getDatabase().update("UPDATE file SET parent=? WHERE id=?", parent.getId(), this.id);
     }
 
     public String getFileName() throws SQLException {
@@ -104,11 +101,12 @@ public class FileModel {
     }
 
     public Date getUploadTime() throws SQLException {
-        return (Date) Database.getDatabase().selectSingleColumn("SELECT upload_time FROM file WHERE id=?", this.id);
+        Timestamp upload = (Timestamp) Database.getDatabase().selectSingleColumn("SELECT upload_time FROM file WHERE id=?", this.id);
+        return new Date(upload.getTime());
     }
 
     public void setUploadTime(Date uploadTime) throws SQLException {
-        Database.getDatabase().update("UPDATE file SET upload_time=? WHERE id=?", uploadTime, this.id);
+        Database.getDatabase().update("UPDATE file SET upload_time=? WHERE id=?", new Timestamp(uploadTime.getTime()), this.id);
     }
 
     public byte[] getContents() throws SQLException {

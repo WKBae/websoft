@@ -1,5 +1,10 @@
 package com.dbdbdeep.websoft.models;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 public class FolderPermissionModel {
     public static void createTable() throws SQLException {
         try(Connection conn = Database.getDatabase().getConnection()) {
@@ -11,8 +16,8 @@ public class FolderPermissionModel {
                             "writable TINYINT(1) DEFAULT 0 NOT NULL," +
                             "permittable TINYINT(1) DEFAULT 0 NOT NULL," +
                             "PRIMARY KEY (folder_id, user_id)," +
-                            "FOREIGN KEY (folder_id) REFERENCES folder(id) ON DELETE CASCADE)," +
-                            "FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE)," +
+                            "FOREIGN KEY (folder_id) REFERENCES folder(id) ON DELETE CASCADE," +
+                            "FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE" +
                     ");"
             );
             stmt.execute();
@@ -40,7 +45,7 @@ public class FolderPermissionModel {
 
             int updatedRows = stmt.executeUpdate();
             if(updatedRows < 1) return null;
-            else return FolderPermissionModel(folderModel.getId(), userModel.getId());
+            else return new FolderPermissionModel(folderModel.getId(), userModel.getId());
         }
     }
 
