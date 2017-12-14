@@ -15,11 +15,13 @@ public class FilePermissionModel {
     private final int fileId, userId;
 
     public int getFileId(){
-
+        // fileId = select fileId from file_permission where id=id
+        // return fileId;
     }
 
     public int getUserId(){
-
+        // userId = select userId from file_permission where id=id
+        // return userId;
     }
 
     public boolean isReadable() {
