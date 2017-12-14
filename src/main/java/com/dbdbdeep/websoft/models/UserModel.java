@@ -7,9 +7,27 @@ import java.sql.SQLException;
 
 public class UserModel {
 	
+	public static void createTable() throws SQLException {
+		try(Connection conn = Database.getDatabase().getConnection()) {
+			PreparedStatement stmt = conn.prepareStatement(
+					"CREATE TABLE IF NOT EXISTS user (" +
+							"id INT NOT NULL AUTO_INCREMENT," +
+							"username VARCHAR(30) NOT NULL," +
+							"password CHAR(41) NOT NULL," +
+							"name VARCHAR(20) NOT NULL," +
+							"email VARCHAR(50)," +
+							"is_admin TINYINT(1) DEFAULT 0 NOT NULL," +
+							"PRIMARY KEY (id)," +
+							"UNIQUE (username)" +
+					");"
+			);
+			stmt.execute();
+		}
+	}
+	
 	public static UserModel get(int id) throws SQLException {
 		Database db = Database.getDatabase();
-		Object idColumn = db.selectSingleColumn("SELECT id FROM user WHERE id=?", id);
+		Object idColumn = db.selectSingleColumn("SELECT 1 FROM user WHERE id=?", id);
 		if(idColumn == null) return null;
 		else return new UserModel(id);
 	}
