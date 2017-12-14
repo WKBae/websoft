@@ -25,7 +25,7 @@ public class FileModel {
         Database db = Database.getDatabase();
         try(Connection conn = db.getConnection()) {
             PreparedStatement stmt = conn.prepareStatement(
-                    "INSERT INTO user (parent, fileName, owner, uploadTime, contents) VALUES (?, ?, ?, ?, ?)",
+                    "INSERT INTO user (parent, file_name, owner, upload_time, contents) VALUES (?, ?, ?, ?, ?)",
                     PreparedStatement.RETURN_GENERATED_KEYS
             );
             stmt.setInt(1, parent);
@@ -57,6 +57,14 @@ public class FileModel {
 
     public int getId(){
         return id;
+    }
+
+    public int getParent() throws SQLException {
+        return (Integer) Database.getDatabase().selectSingleColumn("SELECT parent FROM file WHERE id=?", this.id);
+    }
+
+    public void setParent(FolderModel parent) throws SQLException {
+        Database.getDatabase().update("UPDATE file SET parent=? WHERE id=?", parent.getId, this.id);
     }
 
     public String getFileName() throws SQLException {
