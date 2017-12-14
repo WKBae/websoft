@@ -43,7 +43,7 @@ public class FolderPermissionModel {
     }
 
     public boolean isReadable() throws SQLException {
-        return (boolean) Database.getDatabase().selectSingleColumn("SELECT readable FROM folder_permission WHERE folder_id = ? AND user_id = ?", this.folderId, this.userId);
+        return Boolean.TRUE.equals(Database.getDatabase().selectSingleColumn("SELECT readable FROM folder_permission WHERE folder_id = ? AND user_id = ?", this.folderId, this.userId));
     }
 
     public void setReadable(boolean isReadable) throws SQLException {
@@ -51,7 +51,7 @@ public class FolderPermissionModel {
     }
 
     public boolean isWritable() throws SQLException {
-        return (boolean) Database.getDatabase().selectSingleColumn("SELECT writable FROM folder_permission WHERE folder_id = ? AND user_id = ?", this.folderId, this.userId);
+        return Boolean.TRUE.equals(Database.getDatabase().selectSingleColumn("SELECT writable FROM folder_permission WHERE folder_id = ? AND user_id = ?", this.folderId, this.userId));
     }
 
     public void setWritable(boolean isWritable) throws SQLException {
@@ -59,7 +59,7 @@ public class FolderPermissionModel {
     }
 
     public boolean isPermittable() throws SQLException {
-        return (boolean) Database.getDatabase().selectSingleColumn("SELECT permittable FROM folder_permission WHERE folder_id = ? AND user_id = ?", this.folderId, this.userId);
+        return Boolean.TRUE.equals(Database.getDatabase().selectSingleColumn("SELECT permittable FROM folder_permission WHERE folder_id = ? AND user_id = ?", this.folderId, this.userId));
     }
 
     public void setPermittable(boolean isPermittable) throws SQLException {
