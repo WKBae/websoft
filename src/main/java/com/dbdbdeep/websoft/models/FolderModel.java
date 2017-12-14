@@ -1,8 +1,6 @@
 package com.dbdbdeep.websoft.models;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Date;
 
 public class FolderModel {
@@ -15,8 +13,8 @@ public class FolderModel {
 							"parent INT," +
 							"name VARCHAR(100) NOT NULL," +
 							"owner INT NOT NULL," +
-							"created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP," +
-							"modified DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP," +
+							"created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP," +
+							"modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP," +
 							"PRIMARY KEY (id)," +
 							"FOREIGN KEY (parent) REFERENCES folder(id)" +
 								"ON DELETE CASCADE," +
@@ -36,7 +34,32 @@ public class FolderModel {
 		else return new FolderModel(id);
 	}
 	
-	public static FolderModel create()
+	public static FolderModel create(FolderModel parent, String name, UserModel owner, Date created, Date modified) throws SQLException {
+		Database db = Database.getDatabase();
+		try(Connection conn = db.getConnection()) {
+			PreparedStatement stmt = conn.prepareStatement(
+					"INSERT INTO user (parent, name, owner, created, modified) VALUES (?, ?, ?, ?, ?)",
+					PreparedStatement.RETURN_GENERATED_KEYS
+			);
+			stmt.setObject(1, parent != null? parent.getId() : null);
+			stmt.setString(2, name);
+			stmt.setObject(3, owner != null? owner.getId() : null);
+			stmt.setTimestamp(4, new Timestamp(created.getTime()));
+			stmt.setTimestamp(5, new Timestamp(modified.getTime()));
+			
+			int updatedRows = stmt.executeUpdate();
+			if(updatedRows < 1) return null;
+			
+			try(ResultSet rs = stmt.getGeneratedKeys()) {
+				if(rs.next()) {
+					int id = rs.getInt(1);
+					return new FolderModel(id);
+				} else {
+					return null;
+				}
+			}
+		}
+	}
 	
 	private final int id;
 	
@@ -77,18 +100,18 @@ public class FolderModel {
 	}
 	
 	public Date getCreatedDate() throws SQLException {
-		java.sql.Date date = (java.sql.Date) Database.getDatabase().selectSingleColumn("SELECT created FROM folder WHERE id=?", this.id);
+		Timestamp date = (Timestamp) Database.getDatabase().selectSingleColumn("SELECT created FROM folder WHERE id=?", this.id);
 		return new Date(date.getTime());
 	}
 	public void setCreatedDate(Date created) throws SQLException {
-		Database.getDatabase().update("UPDATE folder SET created=? WHERE id=?", new java.sql.Date(created.getTime()), this.id);
+		Database.getDatabase().update("UPDATE folder SET created=? WHERE id=?", new Timestamp(created.getTime()), this.id);
 	}
 	
 	public Date getModifiedDate() throws SQLException {
-		java.sql.Date date = (java.sql.Date) Database.getDatabase().selectSingleColumn("SELECT modified FROM folder WHERE id=?", this.id);
+		Timestamp date = (Timestamp) Database.getDatabase().selectSingleColumn("SELECT modified FROM folder WHERE id=?", this.id);
 		return new Date(date.getTime());
 	}
 	public void setModifiedDate(Date modified) throws SQLException {
-		Database.getDatabase().update("UPDATE folder SET modified=? WHERE id=?", new java.sql.Date(modified.getTime()), this.id);
+		Database.getDatabase().update("UPDATE folder SET modified=? WHERE id=?", new Timestamp(modified.getTime()), this.id);
 	}
 }
