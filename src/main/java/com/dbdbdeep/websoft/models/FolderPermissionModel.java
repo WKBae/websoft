@@ -1,50 +1,68 @@
 package com.dbdbdeep.websoft.models;
 
 public class FolderPermissionModel {
-    public static FolderPermissionModel get(FolderModel folderModel, UserModel userModel){
-        // select ... from folder_permission where folderModel.getId() = folderId and userModel.getId() = userId;
-        return new FolderPermissionModel(folderModel, userModel);
+    public static FolderPermissionModel get(FolderModel folderModel, UserModel userModel) throws SQLException{
+        Database db = Database.getDatabase();
+        Object[] idColumn = db.selectColumns("SELECT folder_id, user_id FROM folder_permission WHERE folder_id = ? AND user_id = ?", folderModel.getId(), userModel.getId());
+        if(idColumn == null) return null;
+        else return new FolderPermissionModel(folderModel.getId(), userModel.getId());
     }
 
-    public static FolderPermissionModel create(FolderModel folderModel, UserModel userModel, boolean readable, boolean writable, boolean permittable) {
-        // insert into folder_permission values (...)
-        // return new FolderPermissionModel(folderModel, userModel);
+    public static FolderPermissionModel create(FolderModel folderModel, UserModel userModel, boolean readable, boolean writable, boolean permittable) throws SQLException {
+        Database db = Database.getDatabase();
+        try(Connection conn = db.getConnection()) {
+            PreparedStatement stmt = conn.prepareStatement(
+                    "INSERT INTO folder_permission (folder_id, user_id, readable, writable, permittable) VALUES (?, ?, ?, ?, ?)"
+            );
+            stmt.setInt(1, folderModel.getId());
+            stmt.setInt(2, userModel.getId());
+            stmt.setBoolean(3, readable);
+            stmt.setBoolean(4, writable);
+            stmt.setBoolean(5, permittable);
+
+            int updatedRows = stmt.executeUpdate();
+            if(updatedRows < 1) return null;
+            else return FolderPermissionModel(folderModel.getId(), userModel.getId());
+
+        }
     }
 
     private final int folderId, userId;
 
-    public int getFolderId() {
-
+    private FolderPermissionModel(int folderId, int userId) throws SQLException {
+        this.folderId = folderId;
+        this.userId = userId;
     }
 
-    public int getUserId() {
-
+    public FolderModel getFolder() throws SQLException {
+        return FolderModel.get(folderId);
     }
 
-    public boolean isReadable() {
-        // isReadable = select readable from folder_permission where folder_id = folderId and user_id = userId;
-        // return isReadable;
+    public UserModel getUser(int id) throws SQLException {
+        return UserModel.get(userId);
     }
 
-    public void setReadable(boolean isReadable) {
-        // update folder_permission set readable = ? where folder_id = folderId and user_id = userId;
+    public boolean isReadable() throws SQLException {
+        return Boolean.TRUE.equals(Database.getDatabase().selectSingleColumn("SELECT readable FROM folder_permission WHERE folder_id = ? AND user_id = ?", this.folderId, this.userId));
     }
 
-    public boolean isWritable() {
-        // isWritable = select writable from folder_permission where folder_id = folderId and user_id = userId;
-        // return isWritable;
+    public void setReadable(boolean isReadable) throws SQLException {
+        Database.getDatabase().update("UPDATE folder_permission SET readable = ? WHERE folder_id = ? AND user_id = ?", isReadable, this.folderId, this.userId);
     }
 
-    public void setWritable(boolean isWritable) {
-        // update folder_permission set writable = ? where folder_id = folderId and user_id = userId;
+    public boolean isWritable() throws SQLException {
+        return Boolean.TRUE.equals(Database.getDatabase().selectSingleColumn("SELECT writable FROM folder_permission WHERE folder_id = ? AND user_id = ?", this.folderId, this.userId));
     }
 
-    public boolean isPermittable() {
-        // isPermittable = select isPermittable from folder_permission where folder_id = folderId and user_id = userId;
-        // return isPermittable;
+    public void setWritable(boolean isWritable) throws SQLException {
+        Database.getDatabase().update("UPDATE folder_permission SET writable = ? WHERE folder_id = ? AND user_id = ?", isWritable, this.folderId, this.userId);
     }
 
-    public void setPermittable(boolean isPermittable) {
-        // update folder_permission set permittable = ? where folder_id = folderId and user_id = userId;
+    public boolean isPermittable() throws SQLException {
+        return Boolean.TRUE.equals(Database.getDatabase().selectSingleColumn("SELECT permittable FROM folder_permission WHERE folder_id = ? AND user_id = ?", this.folderId, this.userId));
+    }
+
+    public void setPermittable(boolean isPermittable) throws SQLException {
+        Database.getDatabase().update("UPDATE folder_permission SET permittable = ? WHERE folder_id = ? AND user_id = ?", isPermittable, this.folderId, this.userId);
     }
 }
