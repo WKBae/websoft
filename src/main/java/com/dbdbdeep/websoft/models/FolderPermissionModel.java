@@ -45,7 +45,7 @@ public class FolderPermissionModel {
 
             int updatedRows = stmt.executeUpdate();
             if(updatedRows < 1) return null;
-            else return FolderPermissionModel(folderModel.getId(), userModel.getId());
+            else return new FolderPermissionModel(folderModel.getId(), userModel.getId());
         }
     }
 
