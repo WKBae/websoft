@@ -43,7 +43,7 @@ public class FilePermissionModel{
 
             int updatedRows = stmt.executeUpdate();
             if(updatedRows < 1) return null;
-            else return FilePermissionModel(fileModel.getId(), userModel.getId());
+            else return new FilePermissionModel(fileModel.getId(), userModel.getId());
         }
     }
 
