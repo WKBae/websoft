@@ -6,6 +6,23 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class FilePermissionModel{
+    public static void createTable() throws SQLException {
+        try(Connection conn = Database.getDatabase().getConnection()) {
+            PreparedStatement stmt = conn.prepareStatement(
+                    "CREATE TABLE IF NOT EXISTS file_permission (" +
+                            "file_id int not null," +
+                            "user_id int not null," +
+                            "readable tinyint(1) not null default 0," +
+                            "permittable tinyint(1) not null default 0," +
+                            "primary key(file_id, user_id)," +
+                            "foreign key(file_id) references file(id) on delete cascade," +
+                            "foreign key(user_id) references user(id) on delete cascade," +
+                            ");"
+            );
+            stmt.execute();
+        }
+    }
+
     public static FilePermissionModel get(FileModel fileModel, UserModel userModel) throws SQLException{
         Database db = Database.getDatabase();
         Object idColumn = db.selectColumn("SELECT file_id, user_id FROM file_permission WHERE file_id=? AND user_id=?", fileModel.getId(), userModel.getId());
