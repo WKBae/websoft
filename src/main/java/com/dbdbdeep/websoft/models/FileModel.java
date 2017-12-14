@@ -13,7 +13,9 @@ public class FileModel {
         //...
     }
 
-    public static FileModel create(int parent, String fileName, int owner, Date uploadTime, byte[] contents)
+    public static FileModel create(int parent, String fileName, int owner, Date uploadTime, byte[] contents){
+        //...
+    }
 
     private final int id;
 
