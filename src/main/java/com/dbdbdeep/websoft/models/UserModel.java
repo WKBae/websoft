@@ -16,6 +16,7 @@ public class UserModel {
 							"password CHAR(41) NOT NULL," +
 							"name VARCHAR(20) NOT NULL," +
 							"email VARCHAR(50)," +
+							"joined TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP," +
 							"is_admin TINYINT(1) DEFAULT 0 NOT NULL," +
 							"PRIMARY KEY (id)," +
 							"UNIQUE (username)" +
