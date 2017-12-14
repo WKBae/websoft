@@ -17,7 +17,7 @@ public class FolderPermissionModel {
                             "permittable TINYINT(1) DEFAULT 0 NOT NULL," +
                             "PRIMARY KEY (folder_id, user_id)," +
                             "FOREIGN KEY (folder_id) REFERENCES folder(id) ON DELETE CASCADE)," +
-                            "FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE)," +
+                            "FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE)" +
                     ");"
             );
             stmt.execute();
