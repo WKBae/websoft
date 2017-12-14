@@ -1,29 +1,59 @@
 package com.dbdbdeep.websoft.models;
 
-import java.sql.Blob;
+import java.sql.*;
 import java.util.Date;
+import java.lang.String;
+
 
 public class FileModel {
 
-    public static FileModel get(int id) {
-        // select .. from file where id=id
-        // return new FileModel / return null
-        return new FileModel(id);
+    public static FileModel get(int id) throws SQLException {
+        Database db = Database.getDatabase();
+        Object idColumn = db.selectSingleColumn("SELECT id FROM file WHERE id=?", id);
+        if(idColumn == null) return null;
+        else return new FileModel(id);
     }
 
-    public static FileModel getFile(int parent, String fileName) {
-        // select .. from file where fileName = fileName and parent = parent
-        // return new FileModel(id);
-    }
-
-    public static FileModel create(int parent, String fileName, int owner, Date uploadTime, byte[] contents){
+    public static FileModel getFile(int parent, String fileName)  {
         //...
+    }
+
+    public static FileModel create(int parent, String fileName, int owner, Date uploadTime, byte[] contents) throws SQLException {
+        Database db = Database.getDatabase();
+        try(Connection conn = db.getConnection()) {
+            PreparedStatement stmt = conn.prepareStatement(
+                    "INSERT INTO user (parent, fileName, owner, uploadTime, contents) VALUES (?, ?, ?, ?, ?)",
+                    PreparedStatement.RETURN_GENERATED_KEYS
+            );
+            stmt.setInt(1, parent);
+            stmt.setString(2, fileName);
+            stmt.setInt(3, owner);
+            stmt.setDate(4, new java.sql.Date(uploadTime.getTime()));
+            stmt.setBytes(5, contents);
+
+            int updatedRows = stmt.executeUpdate();
+            if(updatedRows < 1) return null;
+
+            try(ResultSet rs = stmt.getGeneratedKeys()) {
+                if(rs.next()) {
+                    int id = rs.getInt(1);
+                    return new FileModel(id);
+                } else {
+                    return null;
+                }
+            }
+        }
     }
 
     private final int id;
 
     private FileModel(int id) {
         this.id = id;
+    }
+
+
+    public int getId(){
+        return id;
     }
 
     public String getFileName(){
