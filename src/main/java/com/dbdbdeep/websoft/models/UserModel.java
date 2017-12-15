@@ -67,12 +67,13 @@ public class UserModel {
 		Database.getDatabase().update("UPDATE user SET username=? WHERE id=?", username, this.id);
 	}
 	
-	public String getPassword() throws SQLException {
-		return (String) Database.getDatabase().selectSingleColumn("SELECT password FROM user WHERE id=?", this.id);
+	public boolean checkPassword(String password) throws SQLException {
+		Object result = Database.getDatabase().selectSingleColumn("SELECT password=PASSWORD(?) FROM user WHERE id=?", password, this.id);
+		return Boolean.TRUE.equals(result);
 	}
 	
 	public void setPassword(String password) throws SQLException {
-		Database.getDatabase().update("UPDATE user SET password=? WHERE id=?", password, this.id);
+		Database.getDatabase().update("UPDATE user SET password=PASSWORD(?) WHERE id=?", password, this.id);
 	}
 	
 	public String getName() throws SQLException {
