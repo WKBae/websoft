@@ -82,6 +82,21 @@ public class Database {
 		}
 	}
 	
+	public Integer insertGetId(String sql, Object... args) throws SQLException {
+		try(Connection conn = getConnection();
+		    PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+			for(int i = 0; i < args.length; i++) {
+				stmt.setObject(i + 1, args[i]);
+			}
+			int count = stmt.executeUpdate();
+			if(count <= 0) return null;
+			try(ResultSet rs = stmt.getGeneratedKeys()) {
+				if(rs.next()) return rs.getInt(1);
+				else return null;
+			}
+		}
+	}
+	
 	private void pushConnection(Connection conn) throws SQLException {
 		conn.commit();
 		if(!avaliableConnections.offer(conn)) {

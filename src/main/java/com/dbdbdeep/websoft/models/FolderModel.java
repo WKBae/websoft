@@ -36,29 +36,15 @@ public class FolderModel {
 	
 	public static FolderModel create(FolderModel parent, String name, UserModel owner, Date created, Date modified) throws SQLException {
 		Database db = Database.getDatabase();
-		try(Connection conn = db.getConnection()) {
-			PreparedStatement stmt = conn.prepareStatement(
-					"INSERT INTO user (parent, name, owner, created, modified) VALUES (?, ?, ?, ?, ?)",
-					PreparedStatement.RETURN_GENERATED_KEYS
-			);
-			stmt.setObject(1, parent != null? parent.getId() : null);
-			stmt.setString(2, name);
-			stmt.setObject(3, owner != null? owner.getId() : null);
-			stmt.setTimestamp(4, new Timestamp(created.getTime()));
-			stmt.setTimestamp(5, new Timestamp(modified.getTime()));
-			
-			int updatedRows = stmt.executeUpdate();
-			if(updatedRows < 1) return null;
-			
-			try(ResultSet rs = stmt.getGeneratedKeys()) {
-				if(rs.next()) {
-					int id = rs.getInt(1);
-					return new FolderModel(id);
-				} else {
-					return null;
-				}
-			}
-		}
+		Integer id = db.insertGetId(
+				"INSERT INTO user (parent, name, owner, created, modified) VALUES (?, ?, ?, ?, ?)",
+				parent != null? parent.getId() : null,
+				name,
+				owner != null? owner.getId() : null,
+				new Timestamp(created.getTime()),
+				new Timestamp(modified.getTime())
+		);
+		return (id == null)? null : new FolderModel(id);
 	}
 	
 	private final int id;

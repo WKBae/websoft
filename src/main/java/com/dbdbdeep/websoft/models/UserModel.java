@@ -42,29 +42,11 @@ public class UserModel {
 	
 	public static UserModel create(String username, String password, String name, String email, boolean isAdmin) throws SQLException {
 		Database db = Database.getDatabase();
-		try(Connection conn = db.getConnection()) {
-			PreparedStatement stmt = conn.prepareStatement(
-					"INSERT INTO user (username, password, name, email, is_admin) VALUES (?, ?, ?, ?, ?)",
-					PreparedStatement.RETURN_GENERATED_KEYS
-			);
-			stmt.setString(1, username);
-			stmt.setString(2, password);
-			stmt.setString(3, name);
-			stmt.setString(4, email);
-			stmt.setBoolean(5, isAdmin);
-			
-			int updatedRows = stmt.executeUpdate();
-			if(updatedRows < 1) return null;
-			
-			try(ResultSet rs = stmt.getGeneratedKeys()) {
-				if(rs.next()) {
-					int id = rs.getInt(1);
-					return new UserModel(id);
-				} else {
-					return null;
-				}
-			}
-		}
+		Integer id = db.insertGetId(
+				"INSERT INTO user (username, password, name, email, is_admin) VALUES (?, ?, ?, ?, ?)",
+				username, password, name, email, isAdmin
+		);
+		return (id == null)? null : new UserModel(id);
 	}
 	
 	private final int id;
