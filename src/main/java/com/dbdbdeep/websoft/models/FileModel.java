@@ -32,6 +32,9 @@ public class FileModel {
 		if(idColumn == null) return null;
 		else return new FileModel(id);
 	}
+	static FileModel getUnchecked(int id) {
+		return new FileModel(id);
+	}
 	
 	public static FileModel getFile(int parent, String fileName) throws SQLException {
 		Database db = Database.getDatabase();
@@ -77,10 +80,10 @@ public class FileModel {
 		return id;
 	}
 	
-	public int getParent() throws SQLException {
-		return (Integer) Database.getDatabase().selectSingleColumn("SELECT parent FROM file WHERE id=?", this.id);
+	public FolderModel getParent() throws SQLException {
+		Integer parentId = (Integer) Database.getDatabase().selectSingleColumn("SELECT parent FROM file WHERE id=?", this.id);
+		return (parentId == null)? null : FolderModel.get(parentId);
 	}
-	
 	public void setParent(FolderModel parent) throws SQLException {
 		Database.getDatabase().update("UPDATE file SET parent=? WHERE id=?", parent.getId(), this.id);
 	}
@@ -88,7 +91,6 @@ public class FileModel {
 	public String getFileName() throws SQLException {
 		return (String) Database.getDatabase().selectSingleColumn("SELECT file_name FROM file WHERE id=?", this.id);
 	}
-	
 	public void setFileName(String fileName) throws SQLException {
 		Database.getDatabase().update("UPDATE file SET file_name=? WHERE id=?", fileName, this.id);
 	}
@@ -96,7 +98,6 @@ public class FileModel {
 	public int getOwner() throws SQLException {
 		return (Integer) Database.getDatabase().selectSingleColumn("SELECT owner FROM file WHERE id=?", this.id);
 	}
-	
 	public void setOwner(int owner) throws SQLException {
 		Database.getDatabase().update("UPDATE file SET owner=? WHERE id=?", owner, this.id);
 	}
@@ -105,7 +106,6 @@ public class FileModel {
 		Timestamp upload = (Timestamp) Database.getDatabase().selectSingleColumn("SELECT upload_time FROM file WHERE id=?", this.id);
 		return new Date(upload.getTime());
 	}
-	
 	public void setUploadTime(Date uploadTime) throws SQLException {
 		Database.getDatabase().update("UPDATE file SET upload_time=? WHERE id=?", new Timestamp(uploadTime.getTime()), this.id);
 	}
@@ -113,7 +113,6 @@ public class FileModel {
 	public byte[] getContents() throws SQLException {
 		return (byte[]) Database.getDatabase().selectSingleColumn("SELECT contents FROM file WHERE id=?", this.id);
 	}
-	
 	public void setContents(byte[] contents) throws SQLException {
 		Database.getDatabase().update("UPDATE file SET contents=? WHERE id=?", contents, this.id);
 	}
