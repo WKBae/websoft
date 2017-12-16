@@ -52,6 +52,22 @@ class Database {
 		}
 	}
 	
+	public <T> T selectSingleColumnAs(Class<T> type, String sql, Object... args) throws SQLException {
+		try(Connection conn = getConnection();
+		    PreparedStatement stmt = conn.prepareStatement(sql)) {
+			for(int i = 0; i < args.length; i++) {
+				stmt.setObject(i + 1, args[i]);
+			}
+			try(ResultSet rs = stmt.executeQuery()) {
+				if(rs.next()) {
+					return rs.getObject(1, type);
+				} else {
+					return null;
+				}
+			}
+		}
+	}
+	
 	public Object[] selectColumns(String sql, Object... args) throws SQLException {
 		try(Connection conn = getConnection();
 		    PreparedStatement stmt = conn.prepareStatement(sql)) {

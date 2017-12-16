@@ -68,7 +68,7 @@ public class UserModel {
 	}
 	
 	public boolean checkPassword(String password) throws SQLException {
-		Object result = Database.getDatabase().selectSingleColumn("SELECT password=PASSWORD(?) FROM user WHERE id=?", password, this.id);
+		Boolean result = Database.getDatabase().selectSingleColumnAs(Boolean.class, "SELECT password=PASSWORD(?) FROM user WHERE id=?", password, this.id);
 		return Boolean.TRUE.equals(result);
 	}
 	
