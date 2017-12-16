@@ -1,9 +1,11 @@
 package com.dbdbdeep.websoft.models;
 
+import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedList;
 
 public class FolderPermissionModel {
     public static void createTable() throws SQLException {
@@ -29,6 +31,29 @@ public class FolderPermissionModel {
         Object[] idColumn = db.selectColumns("SELECT folder_id, user_id FROM folder_permission WHERE folder_id = ? AND user_id = ?", folderModel.getId(), userModel.getId());
         if(idColumn == null) return null;
         else return new FolderPermissionModel(folderModel.getId(), userModel.getId());
+    }
+
+    public FolderPermissionModel[] findPermissions(UserModel user) throws SQLException{
+        Database db = Database.getDatabase();
+        try(Connection conn = db.getConnection();
+            PreparedStatement stmt = conn.prepareStatement("SELECT folder_id FROM folder_permission WHERE user_id = ?")) {
+            stmt.setInt(1, user.getId());
+            try(ResultSet rs = stmt.executeQuery()) {
+                return readFolderPermissionIds(rs, user.getId());
+            }
+        }
+    }
+
+    private FolderPermissionModel[] readFolderPermissionIds(ResultSet rs, int userId) throws SQLException {
+        LinkedList<FolderPermissionModel> models = new LinkedList<>();
+        while(rs.next()) {
+            models.add(FolderPermissionModel.getUnchecked(rs.getInt(1), userId));
+        }
+        return models.toArray(new FolderPermissionModel[0]);
+    }
+
+    static FolderPermissionModel getUnchecked(int folderId, int userId) throws SQLException{
+        return new FolderPermissionModel(folderId, userId);
     }
 
     public static FolderPermissionModel create(FolderModel folderModel, UserModel userModel, boolean readable, boolean writable, boolean permittable) throws SQLException {
