@@ -1,5 +1,6 @@
 package com.dbdbdeep.websoft.models;
 
+import java.io.InputStream;
 import java.sql.*;
 import java.util.Date;
 
@@ -110,11 +111,27 @@ public class FileModel {
 		Database.getDatabase().update("UPDATE file SET upload_time=? WHERE id=?", new Timestamp(uploadTime.getTime()), this.id);
 	}
 	
-	public byte[] getContents() throws SQLException {
-		return (byte[]) Database.getDatabase().selectSingleColumn("SELECT contents FROM file WHERE id=?", this.id);
+	public Blob getContents() throws SQLException {
+		return (Blob) Database.getDatabase().selectSingleColumn("SELECT contents FROM file WHERE id=?", this.id);
 	}
 	public void setContents(byte[] contents) throws SQLException {
-		Database.getDatabase().update("UPDATE file SET contents=? WHERE id=?", contents, this.id);
+		Database db = Database.getDatabase();
+		try(Connection conn = db.getConnection()) {
+			Blob b = conn.createBlob();
+			b.setBytes(1, contents);
+			try(PreparedStatement stmt = conn.prepareStatement("UPDATE file SET contents=? WHERE id=?")) {
+				stmt.setBlob(1, b);
+				stmt.setInt(2, this.id);
+			}
+		}
+	}
+	public void setContents(InputStream stream) throws SQLException {
+		Database db = Database.getDatabase();
+		try(Connection conn = db.getConnection();
+		    PreparedStatement stmt = conn.prepareStatement("UPDATE file SET contents=? WHERE id=?")) {
+			stmt.setBlob(1, stream);
+			stmt.setInt(2, this.id);
+		}
 	}
 	
 }
