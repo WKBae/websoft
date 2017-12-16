@@ -12,6 +12,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="<c:url value="/static/css/bootstrap.min.css"/>">
     <script defer src="<c:url value="/static/js/fontawesome-all.min.js"/>"></script>
+    <style>
+        .custom-file-control:empty::after {
+            content: "파일 선택..."
+        }
+        .custom-file-control::before {
+            content: "찾아보기"
+        }
+    </style>
     <jsp:invoke fragment="head"/>
 </head>
 <body>
