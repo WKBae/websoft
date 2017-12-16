@@ -19,7 +19,7 @@ public class SignServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
-            request.setAttribute("sign", "정보를 입력해주세요.");
+
             String signuser = request.getParameter("username");
             String signpassword = request.getParameter("password");
             String signname = request.getParameter("name");
@@ -28,13 +28,13 @@ public class SignServlet extends HttpServlet {
 
             //아이디 갯수 제한
             if (signuser == null || signuser.length() <= 3) {
-                request.setAttribute("message", "아이디를 4글자 이상 입력해주세요");
+                request.setAttribute("message", "ID_TOO_SHORT");
                 request.getRequestDispatcher("WEB-INF/jsp/login.jsp").forward(request, response); //오류났을때 오류명령어와 함께 돌아옴
                 return;
             } else {
                 //아이디 중복 제한
                 if (UserModel.getUser(signuser) != null) {
-                    request.setAttribute("message", "중복된 아이디가 있습니다.");
+                    request.setAttribute("message", "ID_DUPLICATED");
                     request.getRequestDispatcher("WEB-INF/jsp/login.jsp").forward(request, response); //오류났을때 오류명령어와 함께 돌아옴
                     return;
                 }
@@ -42,14 +42,14 @@ public class SignServlet extends HttpServlet {
 
             //비밀번호 6자리 이상
             if (signpassword == null || signpassword.length() < 6) {
-                request.setAttribute("message", "비밀번호는 6자리 이상 입력해주세요");
+                request.setAttribute("message", "PASSWORD_TOO_SHORT");
                 request.getRequestDispatcher("WEB-INF/jsp/login.jsp").forward(request, response); //오류발생시 오류명령어와 함께 돌아옴
                 return;
             }
 
             //이름 입력 되었는지
             if (signname == null || signname.length() == 0) {
-                request.setAttribute("message", "이름을 입력해주세요");
+                request.setAttribute("message", "NAME_EMPTY");
                 request.getRequestDispatcher("WEB-INF/jsp/login.jsp").forward(request, response); //오류났을때 오류명령어와 함께 돌아옴
                 return;
             }
