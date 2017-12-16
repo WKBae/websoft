@@ -11,7 +11,14 @@
             <div class="row">
                 <div class="col">
                     <form action="<c:url value="/login"/>" method="POST">
-                        <c:if test="${not empty error}"><div class="alert alert-danger">${error}</div></c:if>
+                        <c:if test="${not empty error}">
+                            <div class="alert alert-danger alert-dismissible fade show">
+                                ${error}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        </c:if>
                         <div class="form-group">
                             <label for="username">아이디</label>
                             <input type="text" class="form-control" name="username" id="username" placeholder="Username">
