@@ -15,15 +15,15 @@ import java.sql.SQLException;
 import java.util.Arrays;
 
 @WebServlet(name="DownloadServlet", urlPatterns="/download")
-public class DownloadServlet {
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
-        UserModel user = (UserModel) request.getSession(true).getAttribute("user");
+public class DownloadServlet extends HttpServlet{
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+        try {
+            UserModel user = (UserModel) request.getSession(true).getAttribute("user");
 
-        if (user == null) {
-            response.sendRedirect("/login");
-        }
-        else {
-            try {
+            if (user == null) {
+                response.sendRedirect("/login");
+            }
+            else {
                 String path = request.getPathInfo();
                 String[] splitPath = path.split("/");
                 String filename = splitPath[splitPath.length - 1];
@@ -31,7 +31,7 @@ public class DownloadServlet {
                 FolderModel rootFolder = FolderModel.getRoot(user);
                 FolderModel baseFolder = rootFolder.transverse(Arrays.copyOf(splitPath, splitPath.length - 1));
 
-                if(baseFolder == null){
+                if (baseFolder == null) {
                     response.sendRedirect("/files");
                     return;
                 }
@@ -39,20 +39,20 @@ public class DownloadServlet {
                 InputStream is = downloadFile.getContents().getBinaryStream();
                 OutputStream os = response.getOutputStream();
 
-                int size = blob.getBufferSize();
+                int size = 2048;
                 byte[] buffer = new byte[size];
                 int length = -1;
 
-                while((length=is.read(buffer))!=-1){
-                    os.write(buffer,0,length);
+                while ((length = is.read(buffer)) != -1) {
+                    os.write(buffer, 0, length);
                 }
 
                 os.flush();
                 os.close();
                 is.close();
-            }catch (SQLException e) {
-                e.printStackTrace();
             }
+        }catch(SQLException e){
+            throw new IOException(e);
         }
     }
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
