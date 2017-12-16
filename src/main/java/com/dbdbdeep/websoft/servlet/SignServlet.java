@@ -14,7 +14,7 @@ import java.sql.SQLException;
 public class SignServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
+        request.getRequestDispatcher("WEB-INF/jsp/sign.jsp").forward(request, response);
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -66,7 +66,6 @@ public class SignServlet extends HttpServlet {
         } catch (SQLException e) {
             throw new IOException(e);
         }
-
 
     }
 
