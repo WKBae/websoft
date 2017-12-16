@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedList;
 
 public class FilePermissionModel{
     public static void createTable() throws SQLException {
@@ -29,6 +30,29 @@ public class FilePermissionModel{
         if(idColumn == null) return null;
 
         else return new FilePermissionModel(fileModel.getId(), userModel.getId());
+    }
+
+    public FilePermissionModel[] findPermissions(UserModel user) throws SQLException{
+        Database db = Database.getDatabase();
+        try(Connection conn = db.getConnection();
+            PreparedStatement stmt = conn.prepareStatement("SELECT file_id FROM file_permission WHERE user_id = ?")) {
+            stmt.setInt(1, user.getId());
+            try(ResultSet rs = stmt.executeQuery()) {
+                return readFilePermissionIds(rs, user.getId());
+            }
+        }
+    }
+
+    private FilePermissionModel[] readFilePermissionIds(ResultSet rs, int userId) throws SQLException {
+        LinkedList<FilePermissionModel> models = new LinkedList<>();
+        while(rs.next()) {
+            models.add(FilePermissionModel.getUnchecked(rs.getInt(1), userId));
+        }
+        return models.toArray(new FilePermissionModel[0]);
+    }
+
+    static FilePermissionModel getUnchecked(int fileId, int userId) throws SQLException{
+        return new FilePermissionModel(fileId, userId);
     }
 
     public static FilePermissionModel create(FileModel fileModel, UserModel userModel, boolean readable, boolean permittable) throws SQLException{
