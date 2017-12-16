@@ -23,7 +23,6 @@ public class LoginServlet extends HttpServlet {
 			UserModel user = UserModel.getUser(request.getParameter("username")); //아이디 가져오기
 			String password  = request.getParameter("password"); //패스워드 가져오기
 
-
 			if(user == null) {
 				// 아이디를 제대로 입력해 주세요
 				request.setAttribute("error","아이디를 입력해 주세요.");
@@ -39,7 +38,7 @@ public class LoginServlet extends HttpServlet {
 					request.setAttribute("error","아이디 또는 비밀번호가 틀렸습니다.");
 				}
 			}
-			request.getRequestDispatcher("WEB-INF/jsp/login.jsp").forward(request, response); //오류났을때 오류명령어와 함께 돌아옴
+			request.getRequestDispatcher("/WEB-INF/jsp/login.jsp").forward(request, response); //오류났을때 오류명령어와 함께 돌아옴
 		} catch(SQLException e) {
 			throw new IOException(e);
 		}
