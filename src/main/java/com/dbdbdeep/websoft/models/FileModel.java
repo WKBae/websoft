@@ -55,7 +55,36 @@ public class FileModel {
 			stmt.setString(2, fileName);
 			stmt.setInt(3, owner.getId());
 			stmt.setTimestamp(4, new Timestamp(uploadTime.getTime()));
-			stmt.setBytes(5, contents);
+			Blob b = conn.createBlob();
+			b.setBytes(1, contents);
+			stmt.setBlob(5, b);
+			
+			int updatedRows = stmt.executeUpdate();
+			if(updatedRows < 1) return null;
+			
+			try(ResultSet rs = stmt.getGeneratedKeys()) {
+				if(rs.next()) {
+					int id = rs.getInt(1);
+					return new FileModel(id);
+				} else {
+					return null;
+				}
+			}
+		}
+	}
+	
+	public static FileModel create(FolderModel parent, String fileName, UserModel owner, Date uploadTime, InputStream contents) throws SQLException {
+		Database db = Database.getDatabase();
+		try(Connection conn = db.getConnection()) {
+			PreparedStatement stmt = conn.prepareStatement(
+					"INSERT INTO user (parent, file_name, owner, upload_time, contents) VALUES (?, ?, ?, ?, ?)",
+					PreparedStatement.RETURN_GENERATED_KEYS
+			);
+			stmt.setInt(1, parent.getId());
+			stmt.setString(2, fileName);
+			stmt.setInt(3, owner.getId());
+			stmt.setTimestamp(4, new Timestamp(uploadTime.getTime()));
+			stmt.setBlob(5, contents);
 			
 			int updatedRows = stmt.executeUpdate();
 			if(updatedRows < 1) return null;
