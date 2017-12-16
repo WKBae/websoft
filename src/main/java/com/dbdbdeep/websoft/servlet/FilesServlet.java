@@ -24,9 +24,9 @@ public class FilesServlet extends HttpServlet{
         else{
             try {
                 String path = request.getPathInfo();
-                String[] splitpath = path.split("/");
+                String[] splitPath = path.split("/");
                 FolderModel rootFolder = FolderModel.getRoot(user);
-                FolderModel baseFolder = rootFolder.transverse(splitpath);
+                FolderModel baseFolder = rootFolder.transverse(splitPath);
 
                 if(baseFolder == null){
                     response.sendRedirect("/files");
