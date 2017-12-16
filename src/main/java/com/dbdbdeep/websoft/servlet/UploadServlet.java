@@ -20,7 +20,7 @@ import java.util.Date;
 @WebServlet(name = "UploadServlet", urlPatterns="/upload")
 public class UploadServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        UserModel user = request.getSession(true).getAttribute('user');
+        UserModel user = (UserModel) request.getSession(true).getAttribute("user");
         try {
             if (user == null) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
