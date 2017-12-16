@@ -43,7 +43,7 @@ public class UserModel {
 	public static UserModel create(String username, String password, String name, String email, boolean isAdmin) throws SQLException {
 		Database db = Database.getDatabase();
 		Integer id = db.insertGetId(
-				"INSERT INTO user (username, password, name, email, is_admin) VALUES (?, ?, ?, ?, ?)",
+				"INSERT INTO user (username, password, name, email, is_admin) VALUES (?, PASSWORD(?), ?, ?, ?)",
 				username, password, name, email, isAdmin
 		);
 		return (id == null)? null : new UserModel(id);
