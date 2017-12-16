@@ -37,23 +37,23 @@ public class FileModel {
 		return new FileModel(id);
 	}
 	
-	public static FileModel getFile(int parent, String fileName) throws SQLException {
+	public static FileModel getFile(FolderModel parent, String fileName) throws SQLException {
 		Database db = Database.getDatabase();
-		Object idColumn = db.selectColumns("SELECT parent, file_name FROM file WHERE parent=? AND file_name=?", parent, fileName);
+		Object idColumn = db.selectColumns("SELECT parent, file_name FROM file WHERE parent=? AND file_name=?", parent.getId(), fileName);
 		if(idColumn == null) return null;
 		else return new FileModel((Integer) idColumn);
 	}
 	
-	public static FileModel create(int parent, String fileName, int owner, Date uploadTime, byte[] contents) throws SQLException {
+	public static FileModel create(FolderModel parent, String fileName, UserModel owner, Date uploadTime, byte[] contents) throws SQLException {
 		Database db = Database.getDatabase();
 		try(Connection conn = db.getConnection()) {
 			PreparedStatement stmt = conn.prepareStatement(
 					"INSERT INTO user (parent, file_name, owner, upload_time, contents) VALUES (?, ?, ?, ?, ?)",
 					PreparedStatement.RETURN_GENERATED_KEYS
 			);
-			stmt.setInt(1, parent);
+			stmt.setInt(1, parent.getId());
 			stmt.setString(2, fileName);
-			stmt.setInt(3, owner);
+			stmt.setInt(3, owner.getId());
 			stmt.setTimestamp(4, new Timestamp(uploadTime.getTime()));
 			stmt.setBytes(5, contents);
 			
@@ -96,11 +96,12 @@ public class FileModel {
 		Database.getDatabase().update("UPDATE file SET file_name=? WHERE id=?", fileName, this.id);
 	}
 	
-	public int getOwner() throws SQLException {
-		return (Integer) Database.getDatabase().selectSingleColumn("SELECT owner FROM file WHERE id=?", this.id);
+	public UserModel getOwner() throws SQLException {
+		Integer ownerId = (Integer) Database.getDatabase().selectSingleColumn("SELECT owner FROM file WHERE id=?", this.id);
+		return UserModel.get(ownerId);
 	}
-	public void setOwner(int owner) throws SQLException {
-		Database.getDatabase().update("UPDATE file SET owner=? WHERE id=?", owner, this.id);
+	public void setOwner(UserModel owner) throws SQLException {
+		Database.getDatabase().update("UPDATE file SET owner=? WHERE id=?", owner.getId(), this.id);
 	}
 	
 	public Date getUploadTime() throws SQLException {
