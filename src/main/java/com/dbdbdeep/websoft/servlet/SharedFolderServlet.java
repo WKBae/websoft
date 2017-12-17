@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 @WebServlet(name = "SharedFolderServlet", urlPatterns = "/sharedfolder/*")
 public class SharedFolderServlet extends HttpServlet {
@@ -25,25 +26,22 @@ public class SharedFolderServlet extends HttpServlet {
             FilePermissionModel[] files = FilePermissionModel.findPermissions(user);  //사용자에게 권한이 있는 모든 파일
 
             //  폴더의 최상위 폴더 찾기
-            ArrayList<FolderModel> rootFolders = new ArrayList<>();  //최상위 폴더들만 갖고있는 변수
-            boolean find = false;
+            HashSet<FolderModel> rootFolders = new HashSet<>();  //최상위 폴더들만 갖고있는 변수
+
             for(int i = 0; i < folders.length; i++) {
                 FolderModel folder = folders[i].getFolder();
-                while(find == false) {
+                boolean topmostFound = false;
+                while(!topmostFound) {
                     FolderModel parentFolder = folder.getParent();  //folder의 부모폴더 가져오기
                     if(parentFolder == null) {
-                        if (!rootFolders.contains(folder)) {  //rootFolders에 찾은 checkFolder가 없을 경우에 추가
-                            rootFolders.add(folder);
-                            find = true;
-                        }
+                        rootFolders.add(folder);
+                        topmostFound = true;
                     }
                     else {
                         FolderPermissionModel checkFolder = FolderPermissionModel.get(parentFolder, user);
                         if (checkFolder == null) {  //부모 폴더에 사용자가 권한이 없을 때
-                            if (!rootFolders.contains(folder)) {  //rootFolders에 찾은 checkFolder가 없을 경우에 추가
-                                rootFolders.add(folder);
-                                find = true;
-                            }
+                            rootFolders.add(folder);
+                            topmostFound = true;
                         }
                     }
                     folder = parentFolder;
