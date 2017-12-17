@@ -1,5 +1,6 @@
 package com.dbdbdeep.websoft.servlet;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -17,8 +18,16 @@ public class LogoutServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(); //현재 세션 리턴
 
-        session.removeAttribute("user"); // user 지우기
+        String resUrl = null;
 
-        response.sendRedirect("/login"); //로그인 페이지로 넘어감
+        if(session.getAttribute("user") != null){
+            session.invalidate(); //세션 무효화
+            resUrl = "/login";
+        } else{
+            request.setAttribute("message", "PlEASE_LOGIN");
+            resUrl = "/login";
+        }
+        RequestDispatcher rdp = request.getRequestDispatcher(resUrl);
+        rdp.forward(request, response);
     }
 }
