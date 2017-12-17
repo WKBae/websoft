@@ -117,7 +117,7 @@ public class FileModel {
 	}
 	
 	public String getName() throws SQLException {
-		return (String) Database.getDatabase().selectSingleColumn("SELECT file_name FROM file WHERE id=?", this.id);
+		return (String) Database.getDatabase().selectSingleColumn("SELECT name FROM file WHERE id=?", this.id);
 	}
 	
 	public void setName(String fileName) throws SQLException {
