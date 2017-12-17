@@ -121,7 +121,7 @@ public class FolderModel {
 		return (id == null)? null : FolderModel.getUnchecked(id);
 	}
 	public FileModel getFile(String name) throws SQLException {
-		Integer id = (Integer) Database.getDatabase().selectSingleColumn("SELECT id FROM file WHERE parent=? AND file_name=?", this.id, name);
+		Integer id = (Integer) Database.getDatabase().selectSingleColumn("SELECT id FROM file WHERE parent=? AND name=?", this.id, name);
 		return (id == null)? null : FileModel.getUnchecked(id);
 	}
 	
