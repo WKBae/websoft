@@ -2,7 +2,6 @@ package com.dbdbdeep.websoft.models;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UserModel {
@@ -47,6 +46,10 @@ public class UserModel {
 				username, password, name, email, isAdmin
 		);
 		return (id == null)? null : new UserModel(id);
+	}
+	
+	public void delete() throws SQLException {
+		Database.getDatabase().update("DELETE FROM user WHERE id=?", this.id);
 	}
 	
 	private final int id;

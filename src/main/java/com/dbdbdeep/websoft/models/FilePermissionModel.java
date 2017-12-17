@@ -70,7 +70,11 @@ public class FilePermissionModel{
             else return new FilePermissionModel(fileModel.getId(), userModel.getId());
         }
     }
-
+	
+	public void delete() throws SQLException {
+		Database.getDatabase().update("DELETE FROM file_permission WHERE file_id=? AND user_id=?", this.fileId, this.userId);
+	}
+    
     private final int fileId, userId;
 
     private FilePermissionModel(int fileId, int userId){

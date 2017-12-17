@@ -94,6 +94,10 @@ public class FileModel {
 		}
 	}
 	
+	public void delete() throws SQLException {
+		Database.getDatabase().update("DELETE FROM file WHERE id=?", this.id);
+	}
+	
 	private final int id;
 	
 	private FileModel(int id) {
