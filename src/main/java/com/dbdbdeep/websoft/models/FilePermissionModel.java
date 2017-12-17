@@ -32,7 +32,7 @@ public class FilePermissionModel{
         else return new FilePermissionModel(fileModel.getId(), userModel.getId());
     }
 
-    public FilePermissionModel[] findPermissions(UserModel user) throws SQLException{
+    public static FilePermissionModel[] findPermissions(UserModel user) throws SQLException{
         Database db = Database.getDatabase();
         try(Connection conn = db.getConnection();
             PreparedStatement stmt = conn.prepareStatement("SELECT file_id FROM file_permission WHERE user_id = ?")) {
@@ -43,7 +43,7 @@ public class FilePermissionModel{
         }
     }
 
-    private FilePermissionModel[] readFilePermissionIds(ResultSet rs, int userId) throws SQLException {
+    private static FilePermissionModel[] readFilePermissionIds(ResultSet rs, int userId) throws SQLException {
         LinkedList<FilePermissionModel> models = new LinkedList<>();
         while(rs.next()) {
             models.add(FilePermissionModel.getUnchecked(rs.getInt(1), userId));

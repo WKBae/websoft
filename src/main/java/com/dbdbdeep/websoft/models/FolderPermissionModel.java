@@ -33,7 +33,7 @@ public class FolderPermissionModel {
         else return new FolderPermissionModel(folderModel.getId(), userModel.getId());
     }
 
-    public FolderPermissionModel[] findPermissions(UserModel user) throws SQLException{
+    public static FolderPermissionModel[] findPermissions(UserModel user) throws SQLException{
         Database db = Database.getDatabase();
         try(Connection conn = db.getConnection();
             PreparedStatement stmt = conn.prepareStatement("SELECT folder_id FROM folder_permission WHERE user_id = ?")) {
@@ -44,7 +44,7 @@ public class FolderPermissionModel {
         }
     }
 
-    private FolderPermissionModel[] readFolderPermissionIds(ResultSet rs, int userId) throws SQLException {
+    private static FolderPermissionModel[] readFolderPermissionIds(ResultSet rs, int userId) throws SQLException {
         LinkedList<FolderPermissionModel> models = new LinkedList<>();
         while(rs.next()) {
             models.add(FolderPermissionModel.getUnchecked(rs.getInt(1), userId));
