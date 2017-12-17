@@ -22,7 +22,7 @@ public class FolderModel {
 							"FOREIGN KEY (owner) REFERENCES user(id)" +
 								"ON DELETE CASCADE," +
 							"UNIQUE (parent, name)" +
-						");"
+						") DEFAULT CHARACTER SET utf8;"
 			);
 			stmt.execute();
 		}
