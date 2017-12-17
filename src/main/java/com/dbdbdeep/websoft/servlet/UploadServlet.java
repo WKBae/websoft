@@ -23,31 +23,31 @@ public class UploadServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		UserModel user = (UserModel) request.getSession(true).getAttribute("user");
 		try {
-			if(user == null) {
+			if (user == null) {
 				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 				return;
 			}
-			
+
 			String path = request.getPathInfo();
-			if(path == null) path = "/";
+			if (path == null) path = "/";
 			String[] splitPath = path.split("/");
 			FolderModel rootFolder = FolderModel.getRoot(user);
 			FolderModel baseFolder = rootFolder.transverse(splitPath);
-			if(baseFolder == null) {
+			if (baseFolder == null) {
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
 				return;
 			}
-			
+
 			Part uploaded = request.getPart("file");
 			String fileName = Paths.get(uploaded.getSubmittedFileName()).getFileName().toString(); // MSIE fix
 			FileModel file = FileModel.create(baseFolder, fileName, user, new Date(), uploaded.getInputStream());
-			
-			if(file != null) {
+
+			if (file != null) {
 				response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 			} else {
 				throw new IOException("File \"" + fileName + "\" cannot be created.");
 			}
-		} catch(SQLException e) {
+		} catch (SQLException e) {
 			throw new IOException(e);
 		}
 	}

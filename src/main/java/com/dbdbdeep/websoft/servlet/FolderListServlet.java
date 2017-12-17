@@ -40,14 +40,14 @@ public class FolderListServlet extends HttpServlet {
 			}
 			JSONArray folderList = new JSONArray();
 
-			for(FolderModel folder : baseFolder.getFolders()) {
+			for (FolderModel folder : baseFolder.getFolders()) {
 				folderList.add(folder.getName());
 			}
 
 			response.setContentType("application/json");
 			PrintWriter writer = response.getWriter();
 			writer.print(folderList);
-		}catch (SQLException e){
+		} catch (SQLException e) {
 			throw new IOException(e);
 		}
 	}

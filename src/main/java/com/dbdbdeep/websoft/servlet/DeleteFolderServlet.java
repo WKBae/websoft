@@ -20,8 +20,7 @@ public class DeleteFolderServlet extends HttpServlet {
 
 			if (user == null) {
 				response.sendRedirect("/login");
-			}
-			else {
+			} else {
 				String path = request.getPathInfo();
 				String[] splitPath = path.split("/");
 
@@ -35,11 +34,11 @@ public class DeleteFolderServlet extends HttpServlet {
 				deletedFolder.delete();
 				response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 			}
-		}
-		catch(SQLException e){
+		} catch (SQLException e) {
 			throw new IOException(e);
 		}
 	}
+
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
 	}

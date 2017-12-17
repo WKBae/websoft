@@ -18,50 +18,50 @@ import java.util.Queue;
 
 @WebServlet(name = "SearchServlet", urlPatterns = "/search/*")
 public class SearchServlet extends HttpServlet {
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        try {
-            UserModel user = (UserModel) request.getSession(true).getAttribute("user");
-            if (user == null) {
-                response.sendRedirect("/login");
-                return;
-            }
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		try {
+			UserModel user = (UserModel) request.getSession(true).getAttribute("user");
+			if (user == null) {
+				response.sendRedirect("/login");
+				return;
+			}
 
-            String keyword = request.getParameter("keyword");
-            String path = request.getPathInfo();
-            if (path == null) {
-                response.sendRedirect(response.encodeRedirectURL("/search/?keyword=" + keyword));
-                return;
-            }
-            if (keyword == null || keyword.length() == 0) {
-                response.sendRedirect(response.encodeRedirectURL("/files" + path));
-                return;
-            }
-            String[] splitPath = path.split("/");
+			String keyword = request.getParameter("keyword");
+			String path = request.getPathInfo();
+			if (path == null) {
+				response.sendRedirect(response.encodeRedirectURL("/search/?keyword=" + keyword));
+				return;
+			}
+			if (keyword == null || keyword.length() == 0) {
+				response.sendRedirect(response.encodeRedirectURL("/files" + path));
+				return;
+			}
+			String[] splitPath = path.split("/");
 
-            FolderModel rootFolder = FolderModel.getRoot(user);
-            FolderModel baseFolder = rootFolder.transverse(splitPath);
-            if (baseFolder == null) {
-	            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-	            return;
-            }
+			FolderModel rootFolder = FolderModel.getRoot(user);
+			FolderModel baseFolder = rootFolder.transverse(splitPath);
+			if (baseFolder == null) {
+				response.sendError(HttpServletResponse.SC_NOT_FOUND);
+				return;
+			}
 
-            ArrayList<FolderModel> sFolders = new ArrayList<>();
-            ArrayList<FileModel> sFiles = new ArrayList<>();
-            Queue<FolderModel> folders = new LinkedList<>();
-            folders.add(baseFolder);
+			ArrayList<FolderModel> sFolders = new ArrayList<>();
+			ArrayList<FileModel> sFiles = new ArrayList<>();
+			Queue<FolderModel> folders = new LinkedList<>();
+			folders.add(baseFolder);
 
-            FolderModel folder;
-            while ((folder = folders.poll()) != null) {
-                Collections.addAll(sFiles, folder.searchFiles(keyword));
-                Collections.addAll(sFolders, folder.searchFolders(keyword));
-                Collections.addAll(folders, folder.getFolders());
-            }
+			FolderModel folder;
+			while ((folder = folders.poll()) != null) {
+				Collections.addAll(sFiles, folder.searchFiles(keyword));
+				Collections.addAll(sFolders, folder.searchFolders(keyword));
+				Collections.addAll(folders, folder.getFolders());
+			}
 
-            request.setAttribute("files", sFiles);
-            request.setAttribute("folders", sFolders);
-            request.getRequestDispatcher("/WEB-INF/jsp/search.jsp").forward(request, response);
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-    }
+			request.setAttribute("files", sFiles);
+			request.setAttribute("folders", sFolders);
+			request.getRequestDispatcher("/WEB-INF/jsp/search.jsp").forward(request, response);
+		} catch (SQLException e) {
+			throw new IOException(e);
+		}
+	}
 }

@@ -22,52 +22,52 @@ public class DownloadServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			UserModel user = (UserModel) request.getSession(true).getAttribute("user");
-			
-			if(user == null) {
+
+			if (user == null) {
 				response.sendRedirect("/login");
 			} else {
 				String path = request.getPathInfo();
 				String[] splitPath = path.split("/");
 				String filename = splitPath[splitPath.length - 1];
-				
+
 				FolderModel rootFolder = FolderModel.getRoot(user);
 				FolderModel baseFolder = rootFolder.transverse(Arrays.copyOf(splitPath, splitPath.length - 1));
-				if(baseFolder == null) {
+				if (baseFolder == null) {
 					response.sendError(HttpServletResponse.SC_NOT_FOUND);
 					return;
 				}
-				
+
 				FileModel downloadFile = baseFolder.getFile(filename);
-				if(downloadFile == null) {
+				if (downloadFile == null) {
 					response.sendError(HttpServletResponse.SC_NOT_FOUND);
 					return;
 				}
-				
+
 				downloadFile.getContent(new FileModel.ContentReader() {
 					@Override
 					public void onFileBlobReady(Blob blob) throws IOException, SQLException {
 						response.setContentType(MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(filename));
-						try(InputStream is = blob.getBinaryStream();
-						    OutputStream os = response.getOutputStream()) {
+						try (InputStream is = blob.getBinaryStream();
+						     OutputStream os = response.getOutputStream()) {
 							byte[] buffer = new byte[2048];
 							int length;
-							while((length = is.read(buffer)) != -1) {
+							while ((length = is.read(buffer)) != -1) {
 								os.write(buffer, 0, length);
 							}
 						}
 					}
-					
+
 					@Override
 					public void onFileDoesNotExist() throws IOException {
 						response.sendError(HttpServletResponse.SC_NOT_FOUND);
 					}
 				});
 			}
-		} catch(SQLException e) {
+		} catch (SQLException e) {
 			throw new IOException(e);
 		}
 	}
-	
+
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);
 	}

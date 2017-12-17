@@ -15,38 +15,39 @@ import java.util.Arrays;
 
 @WebServlet(name = "DeleteFileServlet", urlPatterns = "/deletefile/*")
 public class DeleteFileServlet extends HttpServlet {
-    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        try {
-            UserModel user = (UserModel) request.getSession(true).getAttribute("user");
+	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		try {
+			UserModel user = (UserModel) request.getSession(true).getAttribute("user");
 
-            if (user == null) {
-                response.sendRedirect("/login");
-            } else {
-                String path = request.getPathInfo();
-                String[] splitPath = path.split("/");
-                String filename = splitPath[splitPath.length - 1];
+			if (user == null) {
+				response.sendRedirect("/login");
+			} else {
+				String path = request.getPathInfo();
+				String[] splitPath = path.split("/");
+				String filename = splitPath[splitPath.length - 1];
 
-                FolderModel rootFolder = FolderModel.getRoot(user);
-                FolderModel baseFolder = rootFolder.transverse(Arrays.copyOf(splitPath, splitPath.length - 1));
-                if (baseFolder == null) {
-                    response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                    return;
-                }
+				FolderModel rootFolder = FolderModel.getRoot(user);
+				FolderModel baseFolder = rootFolder.transverse(Arrays.copyOf(splitPath, splitPath.length - 1));
+				if (baseFolder == null) {
+					response.sendError(HttpServletResponse.SC_NOT_FOUND);
+					return;
+				}
 
-                FileModel deletedFile = baseFolder.getFile(filename);
-                if (deletedFile == null) {
-                    response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                    return;
-                }
+				FileModel deletedFile = baseFolder.getFile(filename);
+				if (deletedFile == null) {
+					response.sendError(HttpServletResponse.SC_NOT_FOUND);
+					return;
+				}
 
-                deletedFile.delete();
-                response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-            }
-        } catch (SQLException e){
-                throw new IOException(e);
-        }
-    }
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+				deletedFile.delete();
+				response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+			}
+		} catch (SQLException e) {
+			throw new IOException(e);
+		}
+	}
 
-    }
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+	}
 }

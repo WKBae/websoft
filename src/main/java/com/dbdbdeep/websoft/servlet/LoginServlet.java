@@ -18,8 +18,8 @@ public class LoginServlet extends HttpServlet {
 		//request.setAttribute("asdf", "content");
 		request.getRequestDispatcher("WEB-INF/jsp/login.jsp").forward(request, response);
 
-        UserModel user = (UserModel) request.getSession(true).getAttribute("username");
-		if(user != null){ //로그인이 돼있으면 바로 files 페이지로 넘어감
+		UserModel user = (UserModel) request.getSession(true).getAttribute("username");
+		if (user != null) { //로그인이 돼있으면 바로 files 페이지로 넘어감
 			response.sendRedirect("/files/");
 		}
 
