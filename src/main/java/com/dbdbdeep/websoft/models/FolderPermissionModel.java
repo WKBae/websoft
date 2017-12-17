@@ -1,6 +1,5 @@
 package com.dbdbdeep.websoft.models;
 
-import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -73,8 +72,12 @@ public class FolderPermissionModel {
             else return new FolderPermissionModel(folderModel.getId(), userModel.getId());
         }
     }
-
-    private final int folderId, userId;
+	
+	public void delete() throws SQLException {
+		Database.getDatabase().update("DELETE FROM folder_permission WHERE folder_id=? AND user_id=?", this.folderId, this.userId);
+	}
+	
+	private final int folderId, userId;
 
     private FolderPermissionModel(int folderId, int userId) throws SQLException {
         this.folderId = folderId;
@@ -112,4 +115,21 @@ public class FolderPermissionModel {
     public void setPermittable(boolean isPermittable) throws SQLException {
         Database.getDatabase().update("UPDATE folder_permission SET permittable = ? WHERE folder_id = ? AND user_id = ?", isPermittable, this.folderId, this.userId);
     }
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == this) return true;
+		if(obj == null) return false;
+		if(obj instanceof FolderPermissionModel) {
+			FolderPermissionModel f = (FolderPermissionModel) obj;
+			return f.folderId == this.folderId && f.userId == this.userId;
+		} else {
+			return false;
+		}
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.folderId * 31 + this.userId;
+	}
 }

@@ -14,14 +14,14 @@ public class FileModel {
 					"CREATE TABLE IF NOT EXISTS file (" +
 							"id INT NOT NULL AUTO_INCREMENT," +
 							"parent INT NOT NULL," +
-							"file_name VARCHAR(100) NOT NULL," +
+							"name VARCHAR(100) NOT NULL," +
 							"owner INT NOT NULL," +
 							"upload_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP," +
-							"contents LONGBLOB NOT NULL," +
+							"content LONGBLOB NOT NULL," +
 							"PRIMARY KEY (id)," +
 							"FOREIGN KEY (parent) REFERENCES folder(id) ON DELETE CASCADE," +
 							"FOREIGN KEY (owener) REFERENCES user(id) ON DELETE CASCADE," +
-							"UNIQUE (parent, file_name)" +
+							"UNIQUE (parent, name)" +
 							") DEFAULT CHARACTER SET utf8;"
 			);
 			stmt.execute();
@@ -42,7 +42,7 @@ public class FileModel {
 		Database db = Database.getDatabase();
 		try(Connection conn = db.getConnection()) {
 			PreparedStatement stmt = conn.prepareStatement(
-					"INSERT INTO file (parent, file_name, owner, upload_time, contents) VALUES (?, ?, ?, ?, ?)",
+					"INSERT INTO file (parent, name, owner, upload_time, content) VALUES (?, ?, ?, ?, ?)",
 					PreparedStatement.RETURN_GENERATED_KEYS
 			);
 			stmt.setInt(1, parent.getId());
@@ -71,7 +71,7 @@ public class FileModel {
 		Database db = Database.getDatabase();
 		try(Connection conn = db.getConnection()) {
 			PreparedStatement stmt = conn.prepareStatement(
-					"INSERT INTO file (parent, file_name, owner, upload_time, contents) VALUES (?, ?, ?, ?, ?)",
+					"INSERT INTO file (parent, name, owner, upload_time, content) VALUES (?, ?, ?, ?, ?)",
 					PreparedStatement.RETURN_GENERATED_KEYS
 			);
 			stmt.setInt(1, parent.getId());
@@ -94,6 +94,10 @@ public class FileModel {
 		}
 	}
 	
+	public void delete() throws SQLException {
+		Database.getDatabase().update("DELETE FROM file WHERE id=?", this.id);
+	}
+	
 	private final int id;
 	
 	private FileModel(int id) {
@@ -112,11 +116,12 @@ public class FileModel {
 		Database.getDatabase().update("UPDATE file SET parent=? WHERE id=?", parent.getId(), this.id);
 	}
 	
-	public String getFileName() throws SQLException {
+	public String getName() throws SQLException {
 		return (String) Database.getDatabase().selectSingleColumn("SELECT file_name FROM file WHERE id=?", this.id);
 	}
-	public void setFileName(String fileName) throws SQLException {
-		Database.getDatabase().update("UPDATE file SET file_name=? WHERE id=?", fileName, this.id);
+	
+	public void setName(String fileName) throws SQLException {
+		Database.getDatabase().update("UPDATE file SET name=? WHERE id=?", fileName, this.id);
 	}
 	
 	public UserModel getOwner() throws SQLException {
@@ -135,10 +140,10 @@ public class FileModel {
 		Database.getDatabase().update("UPDATE file SET upload_time=? WHERE id=?", new Timestamp(uploadTime.getTime()), this.id);
 	}
 	
-	public void getContents(ContentReader reader) throws IOException, SQLException {
+	public void getContent(ContentReader reader) throws IOException, SQLException {
 		Database db = Database.getDatabase();
 		try(Connection conn = db.getConnection();
-		    PreparedStatement stmt = conn.prepareStatement("SELECT contents FROM file WHERE id=?")) {
+		    PreparedStatement stmt = conn.prepareStatement("SELECT content FROM file WHERE id=?")) {
 			stmt.setInt(1, this.id);
 			try(ResultSet rs = stmt.executeQuery()) {
 				if(rs.next()) {
@@ -149,24 +154,43 @@ public class FileModel {
 			}
 		}
 	}
-	public void setContents(byte[] contents) throws SQLException {
+	
+	public void setContent(byte[] contents) throws SQLException {
 		Database db = Database.getDatabase();
 		try(Connection conn = db.getConnection()) {
 			Blob b = conn.createBlob();
 			b.setBytes(1, contents);
-			try(PreparedStatement stmt = conn.prepareStatement("UPDATE file SET contents=? WHERE id=?")) {
+			try(PreparedStatement stmt = conn.prepareStatement("UPDATE file SET content=? WHERE id=?")) {
 				stmt.setBlob(1, b);
 				stmt.setInt(2, this.id);
 			}
 		}
 	}
-	public void setContents(InputStream stream) throws SQLException {
+	
+	public void setContent(InputStream stream) throws SQLException {
 		Database db = Database.getDatabase();
 		try(Connection conn = db.getConnection();
-		    PreparedStatement stmt = conn.prepareStatement("UPDATE file SET contents=? WHERE id=?")) {
+		    PreparedStatement stmt = conn.prepareStatement("UPDATE file SET content=? WHERE id=?")) {
 			stmt.setBlob(1, stream);
 			stmt.setInt(2, this.id);
 		}
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == this) return true;
+		if(obj == null) return false;
+		if(obj instanceof FileModel) {
+			FileModel f = (FileModel) obj;
+			return f.id == this.id;
+		} else {
+			return false;
+		}
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.id;
 	}
 	
 	public interface ContentReader {

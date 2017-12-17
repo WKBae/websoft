@@ -70,7 +70,11 @@ public class FilePermissionModel{
             else return new FilePermissionModel(fileModel.getId(), userModel.getId());
         }
     }
-
+	
+	public void delete() throws SQLException {
+		Database.getDatabase().update("DELETE FROM file_permission WHERE file_id=? AND user_id=?", this.fileId, this.userId);
+	}
+    
     private final int fileId, userId;
 
     private FilePermissionModel(int fileId, int userId){
@@ -101,5 +105,21 @@ public class FilePermissionModel{
     public void setPermittable(boolean permittable) throws SQLException{
         Database.getDatabase().update("UPDATE readable SET readable=? WHERE file_id=? AND user_id=?", permittable, this.fileId, this.userId);
     }
-
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == this) return true;
+		if(obj == null) return false;
+		if(obj instanceof FilePermissionModel) {
+			FilePermissionModel f = (FilePermissionModel) obj;
+			return f.fileId == this.fileId && f.userId == this.userId;
+		} else {
+			return false;
+		}
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.fileId * 31 + this.userId;
+	}
 }

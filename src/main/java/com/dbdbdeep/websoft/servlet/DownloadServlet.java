@@ -43,7 +43,7 @@ public class DownloadServlet extends HttpServlet {
 					return;
 				}
 				
-				downloadFile.getContents(new FileModel.ContentReader() {
+				downloadFile.getContent(new FileModel.ContentReader() {
 					@Override
 					public void onFileBlobReady(Blob blob) throws IOException, SQLException {
 						response.setContentType(MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(filename));
