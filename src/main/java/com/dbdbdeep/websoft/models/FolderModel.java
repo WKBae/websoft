@@ -210,4 +210,22 @@ public class FolderModel {
 			return null;
 		}
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == this) return true;
+		if(obj == null) return false;
+		if(obj instanceof FolderModel) {
+			FolderModel f = (FolderModel) obj;
+			return f.id == this.id;
+		} else {
+			return false;
+		}
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.id;
+	}
+	
 }

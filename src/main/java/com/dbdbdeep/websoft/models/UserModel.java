@@ -102,4 +102,22 @@ public class UserModel {
 	public void setAdmin(boolean admin) throws SQLException {
 		Database.getDatabase().update("UPDATE user SET is_admin=? WHERE id=?", admin, this.id);
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == this) return true;
+		if(obj == null) return false;
+		if(obj instanceof UserModel) {
+			UserModel f = (UserModel) obj;
+			return f.id == this.id;
+		} else {
+			return false;
+		}
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.id;
+	}
+	
 }
