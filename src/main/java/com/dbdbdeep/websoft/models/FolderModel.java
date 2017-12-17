@@ -183,7 +183,7 @@ public class FolderModel {
 	public FileModel[] searchFiles(String name) throws SQLException {
 		Database db = Database.getDatabase();
 		try(Connection conn = db.getConnection();
-		    PreparedStatement stmt = conn.prepareStatement("SELECT id FROM file WHERE parent=? AND file_name LIKE ? ESCAPE '!'")) {
+		    PreparedStatement stmt = conn.prepareStatement("SELECT id FROM file WHERE parent=? AND name LIKE ? ESCAPE '!'")) {
 			stmt.setInt(1, this.id);
 			String nameEsc = escapeWildcards(name);
 			stmt.setString(2, "%" + nameEsc + "%");
