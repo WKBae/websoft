@@ -20,7 +20,7 @@ public class UserModel {
 							"is_admin TINYINT(1) DEFAULT 0 NOT NULL," +
 							"PRIMARY KEY (id)," +
 							"UNIQUE (username)" +
-					");"
+					") DEFAULT CHARACTER SET utf8;"
 			);
 			stmt.execute();
 		}

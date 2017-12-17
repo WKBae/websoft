@@ -22,7 +22,7 @@ public class FileModel {
 							"FOREIGN KEY (parent) REFERENCES folder(id) ON DELETE CASCADE," +
 							"FOREIGN KEY (owener) REFERENCES user(id) ON DELETE CASCADE," +
 							"UNIQUE (parent, file_name)" +
-							");"
+							") DEFAULT CHARACTER SET utf8;"
 			);
 			stmt.execute();
 		}
