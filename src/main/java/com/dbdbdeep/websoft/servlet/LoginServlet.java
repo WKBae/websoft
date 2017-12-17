@@ -10,16 +10,19 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 
+
 @WebServlet(name = "LoginServlet", urlPatterns = "/login")
 public class LoginServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// ...
 		//request.setAttribute("asdf", "content");
 		request.getRequestDispatcher("WEB-INF/jsp/login.jsp").forward(request, response);
-
-		if(request.getAttribute("user") != null){ //로그인이 돼있으면 바로 files 페이지로 넘어감
+		
+        UserModel user = (UserModel) request.getSession(true).getAttribute("username");
+		if(user != null){ //로그인이 돼있으면 바로 files 페이지로 넘어감
 			response.sendRedirect("/files/");
 		}
+
 	}
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
