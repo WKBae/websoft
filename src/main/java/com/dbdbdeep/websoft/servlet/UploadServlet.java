@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.Date;
 
@@ -38,10 +39,13 @@ public class UploadServlet extends HttpServlet {
 			}
 			
 			Part uploaded = request.getPart("file");
-			FileModel file = FileModel.create(baseFolder, uploaded.getSubmittedFileName(), user, new Date(), uploaded.getInputStream());
+			String fileName = Paths.get(uploaded.getSubmittedFileName()).getFileName().toString(); // MSIE fix
+			FileModel file = FileModel.create(baseFolder, fileName, user, new Date(), uploaded.getInputStream());
 			
 			if(file != null) {
 				response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+			} else {
+				throw new IOException("File \"" + fileName + "\" cannot be created.");
 			}
 		} catch(SQLException e) {
 			throw new IOException(e);
