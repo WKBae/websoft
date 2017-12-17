@@ -25,7 +25,7 @@ public class LoginServlet extends HttpServlet {
 
 			if(user == null) {
 				// 아이디를 제대로 입력해 주세요
-				request.setAttribute("error","아이디를 입력해 주세요.");
+				request.setAttribute("error","ID_INCORRECTED");
 			} else { // 아이디는 맞은경우
 				if(user.checkPassword(password)){
 					//로그인
@@ -35,7 +35,7 @@ public class LoginServlet extends HttpServlet {
 				}
 				else{
 					// false -> 아이디나 비밀번호가 틀렸습니다.
-					request.setAttribute("error","아이디 또는 비밀번호가 틀렸습니다.");
+					request.setAttribute("error","PASSWORD_INCORRECTED");
 				}
 			}
 			request.getRequestDispatcher("/WEB-INF/jsp/login.jsp").forward(request, response); //오류났을때 오류명령어와 함께 돌아옴

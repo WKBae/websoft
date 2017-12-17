@@ -24,6 +24,7 @@ public class SearchServlet extends HttpServlet {
             UserModel user = (UserModel) request.getSession(true).getAttribute("user");
             if (user == null) {
                 response.sendRedirect("/login");
+                return;
             }
 
             String keyword = request.getParameter("keyword");
@@ -50,7 +51,7 @@ public class SearchServlet extends HttpServlet {
 
             request.setAttribute("files", sFiles);
             request.setAttribute("folders", sFolders);
-            request.getRequestDispatcher("WEB-INF/jsp/search.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/jsp/search.jsp").forward(request, response);
         } catch(SQLException e) {
             throw new IOException(e);
         }
