@@ -15,7 +15,6 @@ public class FolderModel {
 							"name VARCHAR(100) NOT NULL," +
 							"owner INT NOT NULL," +
 							"created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP," +
-							"modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP," +
 							"PRIMARY KEY (id)," +
 							"FOREIGN KEY (parent) REFERENCES folder(id)" +
 								"ON DELETE CASCADE," +
@@ -41,24 +40,34 @@ public class FolderModel {
 	public static FolderModel getRoot(UserModel user) throws SQLException {
 		Database db = Database.getDatabase();
 		Integer rootId = (Integer) db.selectSingleColumn("SELECT id FROM folder WHERE parent IS NULL AND owner=?", user.getId());
-		if(rootId == null) {
-			rootId = db.insertGetId("INSERT INTO folder (parent, name, owner) VALUES (?, ?, ?)", null, "", user.getId());
-			if(rootId == null) return null;
+		if(rootId != null) {
+			return new FolderModel(rootId);
+		} else {
+			return create(null, "", user);
 		}
-		return new FolderModel(rootId);
 	}
 	
-	public static FolderModel create(FolderModel parent, String name, UserModel owner, Date created, Date modified) throws SQLException {
+	public static FolderModel create(FolderModel parent, String name, UserModel owner, Date created) throws SQLException {
 		Database db = Database.getDatabase();
 		Integer id = db.insertGetId(
-				"INSERT INTO user (parent, name, owner, created, modified) VALUES (?, ?, ?, ?, ?)",
+				"INSERT INTO user (parent, name, owner, created) VALUES (?, ?, ?, ?)",
 				parent != null? parent.getId() : null,
 				name,
 				owner != null? owner.getId() : null,
-				new Timestamp(created.getTime()),
-				new Timestamp(modified.getTime())
+				new Timestamp(created.getTime())
 		);
 		return (id == null)? null : new FolderModel(id);
+	}
+	
+	public static FolderModel create(FolderModel parent, String name, UserModel owner) throws SQLException {
+		Database db = Database.getDatabase();
+		Integer id = db.insertGetId(
+				"INSERT INTO user (parent, name, owner) VALUES (?, ?, ?)",
+				parent != null ? parent.getId() : null,
+				name,
+				owner != null ? owner.getId() : null
+		);
+		return (id == null) ? null : new FolderModel(id);
 	}
 	
 	private final int id;
@@ -101,14 +110,6 @@ public class FolderModel {
 	}
 	public void setCreatedDate(Date created) throws SQLException {
 		Database.getDatabase().update("UPDATE folder SET created=? WHERE id=?", new Timestamp(created.getTime()), this.id);
-	}
-	
-	public Date getModifiedDate() throws SQLException {
-		Timestamp date = (Timestamp) Database.getDatabase().selectSingleColumn("SELECT modified FROM folder WHERE id=?", this.id);
-		return new Date(date.getTime());
-	}
-	public void setModifiedDate(Date modified) throws SQLException {
-		Database.getDatabase().update("UPDATE folder SET modified=? WHERE id=?", new Timestamp(modified.getTime()), this.id);
 	}
 	
 	public FolderModel getFolder(String name) throws SQLException {
