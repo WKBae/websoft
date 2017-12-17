@@ -10,7 +10,7 @@
         <div class="container">
             <div class="row">
                 <div class="col">
-                    <form action="<c:url value="/login"/>" method="POST">
+                    <form action="<c:url value="/sign"/>" method="POST">
                         <c:if test="${not empty message}"><div class="alert alert-danger">${message}</div></c:if>
                         <div class="form-group">
                             <label for="username">아이디</label>

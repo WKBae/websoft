@@ -29,13 +29,13 @@ public class SignServlet extends HttpServlet {
             //아이디 갯수 제한
             if (signuser == null || signuser.length() <= 3) {
                 request.setAttribute("message", "ID_TOO_SHORT");
-                request.getRequestDispatcher("WEB-INF/jsp/login.jsp").forward(request, response); //오류났을때 오류명령어와 함께 돌아옴
+                request.getRequestDispatcher("/WEB-INF/jsp/sign.jsp").forward(request, response); //오류났을때 오류명령어와 함께 돌아옴
                 return;
             } else {
                 //아이디 중복 제한
                 if (UserModel.getUser(signuser) != null) {
                     request.setAttribute("message", "ID_DUPLICATED");
-                    request.getRequestDispatcher("WEB-INF/jsp/login.jsp").forward(request, response); //오류났을때 오류명령어와 함께 돌아옴
+                    request.getRequestDispatcher("/WEB-INF/jsp/sign.jsp").forward(request, response); //오류났을때 오류명령어와 함께 돌아옴
                     return;
                 }
             }
@@ -43,14 +43,14 @@ public class SignServlet extends HttpServlet {
             //비밀번호 6자리 이상
             if (signpassword == null || signpassword.length() < 6) {
                 request.setAttribute("message", "PASSWORD_TOO_SHORT");
-                request.getRequestDispatcher("WEB-INF/jsp/login.jsp").forward(request, response); //오류발생시 오류명령어와 함께 돌아옴
+                request.getRequestDispatcher("/WEB-INF/jsp/sign.jsp").forward(request, response); //오류발생시 오류명령어와 함께 돌아옴
                 return;
             }
 
             //이름 입력 되었는지
             if (signname == null || signname.length() == 0) {
                 request.setAttribute("message", "NAME_EMPTY");
-                request.getRequestDispatcher("WEB-INF/jsp/login.jsp").forward(request, response); //오류났을때 오류명령어와 함께 돌아옴
+                request.getRequestDispatcher("/WEB-INF/jsp/sign.jsp").forward(request, response); //오류났을때 오류명령어와 함께 돌아옴
                 return;
             }
 

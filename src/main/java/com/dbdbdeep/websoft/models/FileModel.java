@@ -1,5 +1,6 @@
 package com.dbdbdeep.websoft.models;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
 import java.util.Date;
@@ -15,10 +16,10 @@ public class FileModel {
 							"parent INT NOT NULL," +
 							"file_name VARCHAR(100) NOT NULL," +
 							"owner INT NOT NULL," +
-							"upload_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ," +
-							"contents BLOB NOT NULL," +
+							"upload_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP," +
+							"contents LONGBLOB NOT NULL," +
 							"PRIMARY KEY (id)," +
-							"FOREIGN KEY (parent) REFERENCES folder(id) ON DELETE CASCADE ," +
+							"FOREIGN KEY (parent) REFERENCES folder(id) ON DELETE CASCADE," +
 							"FOREIGN KEY (owener) REFERENCES user(id) ON DELETE CASCADE," +
 							"UNIQUE (parent, file_name)" +
 							");"
@@ -37,18 +38,11 @@ public class FileModel {
 		return new FileModel(id);
 	}
 	
-	public static FileModel getFile(FolderModel parent, String fileName) throws SQLException {
-		Database db = Database.getDatabase();
-		Object idColumn = db.selectColumns("SELECT parent, file_name FROM file WHERE parent=? AND file_name=?", parent.getId(), fileName);
-		if(idColumn == null) return null;
-		else return new FileModel((Integer) idColumn);
-	}
-	
 	public static FileModel create(FolderModel parent, String fileName, UserModel owner, Date uploadTime, byte[] contents) throws SQLException {
 		Database db = Database.getDatabase();
 		try(Connection conn = db.getConnection()) {
 			PreparedStatement stmt = conn.prepareStatement(
-					"INSERT INTO user (parent, file_name, owner, upload_time, contents) VALUES (?, ?, ?, ?, ?)",
+					"INSERT INTO file (parent, file_name, owner, upload_time, contents) VALUES (?, ?, ?, ?, ?)",
 					PreparedStatement.RETURN_GENERATED_KEYS
 			);
 			stmt.setInt(1, parent.getId());
@@ -77,7 +71,7 @@ public class FileModel {
 		Database db = Database.getDatabase();
 		try(Connection conn = db.getConnection()) {
 			PreparedStatement stmt = conn.prepareStatement(
-					"INSERT INTO user (parent, file_name, owner, upload_time, contents) VALUES (?, ?, ?, ?, ?)",
+					"INSERT INTO file (parent, file_name, owner, upload_time, contents) VALUES (?, ?, ?, ?, ?)",
 					PreparedStatement.RETURN_GENERATED_KEYS
 			);
 			stmt.setInt(1, parent.getId());
@@ -141,8 +135,19 @@ public class FileModel {
 		Database.getDatabase().update("UPDATE file SET upload_time=? WHERE id=?", new Timestamp(uploadTime.getTime()), this.id);
 	}
 	
-	public Blob getContents() throws SQLException {
-		return (Blob) Database.getDatabase().selectSingleColumn("SELECT contents FROM file WHERE id=?", this.id);
+	public void getContents(ContentReader reader) throws IOException, SQLException {
+		Database db = Database.getDatabase();
+		try(Connection conn = db.getConnection();
+		    PreparedStatement stmt = conn.prepareStatement("SELECT contents FROM file WHERE id=?")) {
+			stmt.setInt(1, this.id);
+			try(ResultSet rs = stmt.executeQuery()) {
+				if(rs.next()) {
+					reader.onFileBlobReady(rs.getBlob(1));
+				} else {
+					reader.onFileDoesNotExist();
+				}
+			}
+		}
 	}
 	public void setContents(byte[] contents) throws SQLException {
 		Database db = Database.getDatabase();
@@ -164,5 +169,9 @@ public class FileModel {
 		}
 	}
 	
+	public interface ContentReader {
+		public void onFileBlobReady(Blob blob) throws IOException, SQLException;
+		public void onFileDoesNotExist() throws IOException;
+	}
 }
 

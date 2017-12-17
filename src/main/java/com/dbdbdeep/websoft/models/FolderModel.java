@@ -112,11 +112,11 @@ public class FolderModel {
 	}
 	
 	public FolderModel getFolder(String name) throws SQLException {
-		Integer id = (Integer) Database.getDatabase().selectSingleColumn("SELECT id FROM folders WHERE parent=? AND name=?", this.id, name);
+		Integer id = (Integer) Database.getDatabase().selectSingleColumn("SELECT id FROM folder WHERE parent=? AND name=?", this.id, name);
 		return (id == null)? null : FolderModel.getUnchecked(id);
 	}
 	public FileModel getFile(String name) throws SQLException {
-		Integer id = (Integer) Database.getDatabase().selectSingleColumn("SELECT id FROM files WHERE parent=? AND file_name=?", this.id, name);
+		Integer id = (Integer) Database.getDatabase().selectSingleColumn("SELECT id FROM file WHERE parent=? AND file_name=?", this.id, name);
 		return (id == null)? null : FileModel.getUnchecked(id);
 	}
 	
@@ -138,7 +138,7 @@ public class FolderModel {
 	public FolderModel[] getFolders() throws SQLException {
 		Database db = Database.getDatabase();
 		try(Connection conn = db.getConnection();
-		    PreparedStatement stmt = conn.prepareStatement("SELECT id FROM folders WHERE parent=?")) {
+		    PreparedStatement stmt = conn.prepareStatement("SELECT id FROM folder WHERE parent=?")) {
 			stmt.setInt(1, this.id);
 			try(ResultSet rs = stmt.executeQuery()) {
 				return readFolderIds(rs);
@@ -148,7 +148,7 @@ public class FolderModel {
 	public FileModel[] getFiles() throws SQLException {
 		Database db = Database.getDatabase();
 		try(Connection conn = db.getConnection();
-		    PreparedStatement stmt = conn.prepareStatement("SELECT id FROM files WHERE parent=?")) {
+		    PreparedStatement stmt = conn.prepareStatement("SELECT id FROM file WHERE parent=?")) {
 			stmt.setInt(1, this.id);
 			try(ResultSet rs = stmt.executeQuery()) {
 				return readFileIds(rs);
@@ -166,7 +166,7 @@ public class FolderModel {
 	public FolderModel[] searchFolders(String name) throws SQLException {
 		Database db = Database.getDatabase();
 		try(Connection conn = db.getConnection();
-		    PreparedStatement stmt = conn.prepareStatement("SELECT id FROM folders WHERE parent=? AND name LIKE ? ESCAPE '!'")) {
+		    PreparedStatement stmt = conn.prepareStatement("SELECT id FROM folder WHERE parent=? AND name LIKE ? ESCAPE '!'")) {
 			stmt.setInt(1, this.id);
 			String nameEsc = escapeWildcards(name);
 			stmt.setString(2, "%" + nameEsc + "%");
@@ -178,7 +178,7 @@ public class FolderModel {
 	public FileModel[] searchFiles(String name) throws SQLException {
 		Database db = Database.getDatabase();
 		try(Connection conn = db.getConnection();
-		    PreparedStatement stmt = conn.prepareStatement("SELECT id FROM files WHERE parent=? AND file_name LIKE ? ESCAPE '!'")) {
+		    PreparedStatement stmt = conn.prepareStatement("SELECT id FROM file WHERE parent=? AND file_name LIKE ? ESCAPE '!'")) {
 			stmt.setInt(1, this.id);
 			String nameEsc = escapeWildcards(name);
 			stmt.setString(2, "%" + nameEsc + "%");

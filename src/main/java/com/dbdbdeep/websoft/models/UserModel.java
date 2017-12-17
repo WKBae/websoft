@@ -43,7 +43,7 @@ public class UserModel {
 	public static UserModel create(String username, String password, String name, String email, boolean isAdmin) throws SQLException {
 		Database db = Database.getDatabase();
 		Integer id = db.insertGetId(
-				"INSERT INTO user (username, password, name, email, is_admin) VALUES (?, ?, ?, ?, ?)",
+				"INSERT INTO user (username, password, name, email, is_admin) VALUES (?, PASSWORD(?), ?, ?, ?)",
 				username, password, name, email, isAdmin
 		);
 		return (id == null)? null : new UserModel(id);
@@ -68,7 +68,7 @@ public class UserModel {
 	}
 	
 	public boolean checkPassword(String password) throws SQLException {
-		Object result = Database.getDatabase().selectSingleColumn("SELECT password=PASSWORD(?) FROM user WHERE id=?", password, this.id);
+		Boolean result = Database.getDatabase().selectSingleColumnAs(Boolean.class, "SELECT password=PASSWORD(?) FROM user WHERE id=?", password, this.id);
 		return Boolean.TRUE.equals(result);
 	}
 	
