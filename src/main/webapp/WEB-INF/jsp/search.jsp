@@ -2,10 +2,10 @@
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<c:set var="searchPath" value="/search${path}"/>
-<c:set var="folderBasePath" value="/files${path}"/>
-<c:set var="fileBasePath" value="/download${path}"/>
-<c:set var="uploadPath" value="/upload${path}"/>
+<c:set var="searchPath" value="/search${path != '/'? path : ''}"/>
+<c:set var="folderBasePath" value="/files${path != '/'? path : ''}"/>
+<c:set var="fileBasePath" value="/download${path != '/'? path : ''}"/>
+<c:set var="uploadPath" value="/upload${path != '/'? path : ''}"/>
 
 <t:bootstrap title="WebSoft :: ${path}">
     <jsp:attribute name="head">
@@ -109,34 +109,19 @@
                             data-target="#upload-modal">
                         <i class="far fa-upload"></i> 업로드
                     </button>
-                    <button class="btn btn-outline-danger" id="delete-btn">
-                        <i class="fas fa-trash"></i> 삭제
-                    </button>
                 </div>
                 <div class="col-12 col-md-9 order-md-first">
                     <c:forEach var="folder" items="${folders}">
-                        <div class="folder-entry" data-path="${path}}/${folder.name}">
-                            <div class="form-check form-check-inline">
-                                <label class="form-check-label">
-                                    <input type="checkbox" class="form-check-input position-static folder-check">
-                                </label>
-                            </div>
-                            <a href="<c:url value="${folderBasePath}/${folder.name}"/>">
-                                <i class="far fa-folder-open"></i> ${folder.name}
-                            </a>
-                        </div>
+                        <a href="<c:url value="${folderBasePath}/${folder.name}"/>">
+                            <i class="far fa-folder-open"></i> ${folder.name}
+                        </a>
+                        <br>
                     </c:forEach>
                     <c:forEach var="file" items="${files}">
-                        <div class="file-entry" data-path="${path}/${file.name}">
-                            <div class="form-check form-check-inline">
-                                <label class="form-check-label">
-                                    <input type="checkbox" class="form-check-input position-static file-check">
-                                </label>
-                            </div>
-                            <a href="<c:url value="${fileBasePath}/${file.name}"/>">
-                                <i class="far fa-file"></i> ${file.name}
-                            </a>
-                        </div>
+                        <a href="<c:url value="${fileBasePath}/${file.name}"/>">
+                            <i class="far fa-file"></i> ${file.name}
+                        </a>
+                        <br>
                     </c:forEach>
                 </div>
             </div>

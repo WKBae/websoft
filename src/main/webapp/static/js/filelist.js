@@ -97,3 +97,29 @@ $("#upload-modal").on('hidden.bs.modal', function () {
     $items.find("custom-form-control").text("");
     $(".upload-file-loading").addClass("d-none");
 });
+
+$("#delete-btn").on('click', function () {
+    var $checkedFolders = $(".folder-check:checked").closest(".folder-entry");
+    var $checkedFiles = $(".file-check:checked").closest(".file-entry");
+    var count = $checkedFolders.length + $checkedFiles.length;
+
+    function descCount() {
+        count--;
+        if (count == 0) {
+            alert("done");
+        }
+    }
+
+    $checkedFolders.each(function () {
+        $.ajax({
+            type: "DELETE",
+            url: "/deletefolder" + $(this).data("path"),
+        }).always(descCount);
+    });
+    $checkedFiles.each(function () {
+        $.ajax({
+            type: "DELETE",
+            url: "/deletefile" + $(this).data("path"),
+        }).always(descCount);
+    });
+});
