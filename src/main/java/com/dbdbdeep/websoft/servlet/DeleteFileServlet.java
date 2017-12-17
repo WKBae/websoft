@@ -15,7 +15,7 @@ import java.util.Arrays;
 
 @WebServlet(name = "DeleteFileServlet", urlPatterns = "/deletefile/*")
 public class DeleteFileServlet extends HttpServlet {
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
             UserModel user = (UserModel) request.getSession(true).getAttribute("user");
 

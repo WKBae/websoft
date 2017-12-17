@@ -115,4 +115,21 @@ public class FolderPermissionModel {
     public void setPermittable(boolean isPermittable) throws SQLException {
         Database.getDatabase().update("UPDATE folder_permission SET permittable = ? WHERE folder_id = ? AND user_id = ?", isPermittable, this.folderId, this.userId);
     }
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == this) return true;
+		if(obj == null) return false;
+		if(obj instanceof FolderPermissionModel) {
+			FolderPermissionModel f = (FolderPermissionModel) obj;
+			return f.folderId == this.folderId && f.userId == this.userId;
+		} else {
+			return false;
+		}
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.folderId * 31 + this.userId;
+	}
 }

@@ -105,5 +105,21 @@ public class FilePermissionModel{
     public void setPermittable(boolean permittable) throws SQLException{
         Database.getDatabase().update("UPDATE readable SET readable=? WHERE file_id=? AND user_id=?", permittable, this.fileId, this.userId);
     }
-
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == this) return true;
+		if(obj == null) return false;
+		if(obj instanceof FilePermissionModel) {
+			FilePermissionModel f = (FilePermissionModel) obj;
+			return f.fileId == this.fileId && f.userId == this.userId;
+		} else {
+			return false;
+		}
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.fileId * 31 + this.userId;
+	}
 }

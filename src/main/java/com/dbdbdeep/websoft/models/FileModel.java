@@ -176,6 +176,23 @@ public class FileModel {
 		}
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == this) return true;
+		if(obj == null) return false;
+		if(obj instanceof FileModel) {
+			FileModel f = (FileModel) obj;
+			return f.id == this.id;
+		} else {
+			return false;
+		}
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.id;
+	}
+	
 	public interface ContentReader {
 		public void onFileBlobReady(Blob blob) throws IOException, SQLException;
 		public void onFileDoesNotExist() throws IOException;
