@@ -17,14 +17,14 @@ public class LoginServlet extends HttpServlet {
 		// ...
 		//request.setAttribute("asdf", "content");
 		request.getRequestDispatcher("WEB-INF/jsp/login.jsp").forward(request, response);
-		
+
         UserModel user = (UserModel) request.getSession(true).getAttribute("username");
 		if(user != null){ //로그인이 돼있으면 바로 files 페이지로 넘어감
 			response.sendRedirect("/files/");
 		}
 
 	}
-	
+
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			UserModel user = UserModel.getUser(request.getParameter("username")); //아이디 가져오기
@@ -40,7 +40,7 @@ public class LoginServlet extends HttpServlet {
 					response.sendRedirect("/files/"); //files 주소로 넘어감
 					return;
 				} else {
-					// false -> 아이디나 비밀번호가 틀렸습니다.
+					// false -> 비밀번호가 틀렸습니다.
 					request.setAttribute("error", "PASSWORD_INCORRECTED");
 				}
 			}

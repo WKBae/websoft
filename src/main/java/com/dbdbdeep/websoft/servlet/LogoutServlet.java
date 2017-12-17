@@ -27,6 +27,7 @@ public class LogoutServlet extends HttpServlet {
             request.setAttribute("message", "PlEASE_LOGIN");
             resUrl = "/login";
         }
+
         RequestDispatcher rdp = request.getRequestDispatcher(resUrl);
         rdp.forward(request, response);
     }
