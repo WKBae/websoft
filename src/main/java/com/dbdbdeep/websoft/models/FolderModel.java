@@ -70,6 +70,10 @@ public class FolderModel {
 		return (id == null) ? null : new FolderModel(id);
 	}
 	
+	public void delete() throws SQLException {
+		Database.getDatabase().update("DELETE FROM folder WHERE id=?", this.id);
+	}
+	
 	private final int id;
 	
 	private FolderModel(int id) {

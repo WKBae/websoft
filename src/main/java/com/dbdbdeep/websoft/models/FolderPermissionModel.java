@@ -1,6 +1,5 @@
 package com.dbdbdeep.websoft.models;
 
-import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -73,8 +72,12 @@ public class FolderPermissionModel {
             else return new FolderPermissionModel(folderModel.getId(), userModel.getId());
         }
     }
-
-    private final int folderId, userId;
+	
+	public void delete() throws SQLException {
+		Database.getDatabase().update("DELETE FROM folder_permission WHERE folder_id=? AND user_id=?", this.folderId, this.userId);
+	}
+	
+	private final int folderId, userId;
 
     private FolderPermissionModel(int folderId, int userId) throws SQLException {
         this.folderId = folderId;
