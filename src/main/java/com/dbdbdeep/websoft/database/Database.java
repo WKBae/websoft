@@ -1,36 +1,22 @@
-package com.dbdbdeep.websoft.models;
+package com.dbdbdeep.websoft.database;
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
-
-import javax.sql.DataSource;
-import java.beans.PropertyVetoException;
 import java.sql.*;
 
-class Database {
-	private final static Database INSTANCE = new Database();
+public class Database {
+	final static ThreadLocal<Database> instances = new ThreadLocal<>();
 
 	public static Database getDatabase() {
-		return INSTANCE;
+		return instances.get();
 	}
 
-	private DataSource ds;
+	private UnclosableConnection conn;
 
-	private Database() {
-		ComboPooledDataSource cpds = new ComboPooledDataSource();
-		try {
-			cpds.setDriverClass("com.mysql.jdbc.Driver");
-		} catch (PropertyVetoException e) {
-			throw new RuntimeException(e);
-		}
-		cpds.setJdbcUrl("jdbc:mysql://localhost:3306/websoft");
-		cpds.setUser("websoft");
-		cpds.setPassword("!DB@project#");
-		cpds.setMaxStatements(200);
-		this.ds = cpds;
+	Database(Connection conn) {
+		this.conn = new UnclosableConnection(conn);
 	}
 
 	public Connection getConnection() throws SQLException {
-		return ds.getConnection();
+		return conn;
 	}
 
 	public Object selectSingleColumn(String sql, Object... args) throws SQLException {
@@ -111,4 +97,5 @@ class Database {
 			}
 		}
 	}
+
 }

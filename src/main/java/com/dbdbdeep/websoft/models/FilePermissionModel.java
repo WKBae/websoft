@@ -1,5 +1,7 @@
 package com.dbdbdeep.websoft.models;
 
+import com.dbdbdeep.websoft.database.Database;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

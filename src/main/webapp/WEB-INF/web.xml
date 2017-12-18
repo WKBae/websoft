@@ -11,4 +11,30 @@
 
     <display-name>WebSoft</display-name>
 
+    <filter>
+        <filter-name>DatabaseBindFilter</filter-name>
+        <filter-class>com.dbdbdeep.websoft.database.DatabaseBindFilter</filter-class>
+
+        <init-param>
+            <param-name>driver</param-name>
+            <param-value>com.mysql.jdbc.Driver</param-value>
+        </init-param>
+        <init-param>
+            <param-name>url</param-name>
+            <param-value>jdbc:mysql://172.25.71.22:3306/websoft?autoReconnect=true&amp;useSSL=false</param-value>
+        </init-param>
+        <init-param>
+            <param-name>user</param-name>
+            <param-value>websoft</param-value>
+        </init-param>
+        <init-param>
+            <param-name>password</param-name>
+            <param-value>!DB@project#</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>DatabaseBindFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+
+    </filter-mapping>
 </web-app>

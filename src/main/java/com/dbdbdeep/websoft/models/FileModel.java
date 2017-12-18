@@ -1,5 +1,7 @@
 package com.dbdbdeep.websoft.models;
 
+import com.dbdbdeep.websoft.database.Database;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;

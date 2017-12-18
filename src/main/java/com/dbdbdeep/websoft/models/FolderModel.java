@@ -1,5 +1,7 @@
 package com.dbdbdeep.websoft.models;
 
+import com.dbdbdeep.websoft.database.Database;
+
 import java.sql.*;
 import java.util.Date;
 import java.util.LinkedList;
