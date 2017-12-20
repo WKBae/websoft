@@ -23,7 +23,7 @@
                 visibility: hidden;
             }
 
-            .upload-file-loading {
+            .modal-loading {
                 position: absolute;
                 top: 0;
                 bottom: 0;
@@ -119,7 +119,8 @@
                            data-target="#upload-modal" id="upload-btn">
                             <i class="far fa-upload"></i> 업로드
                         </a>
-                        <a href="#" class="list-group-item list-group-item-action" id="delete-btn">
+                        <a href="#" class="list-group-item list-group-item-action list-group-item-danger"
+                           id="delete-btn">
                             <i class="far fa-trash"></i> 삭제
                         </a>
                     </div>
@@ -127,14 +128,14 @@
 
                 <div class="col-12 col-md-9 order-md-first">
                     <c:forEach var="folder" items="${folders}">
-                        <div class="folder-entry" data-path="${util:joinPath("", path, folder.name)}">
+                        <div class="folder-entry" data-name="${folder.name}"
+                             data-path="${util:joinPath("", path, folder.name)}">
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
                                     <input type="checkbox" class="form-check-input position-static folder-check">
                                 </label>
                             </div>
                             <a href="<c:url value="${util:joinPath(folderBase, path, folder.name)}"/>">
-
                                 <i class="far fa-folder-open"></i> ${folder.name}
                             </a>
                         </div>
@@ -211,7 +212,7 @@
                     <button type="submit" class="btn btn-primary" id="upload-files"><i
                             class="fas fa-upload"></i> 업로드
                     </button>
-                    <div class="upload-file-loading d-none">
+                    <div class="modal-loading d-none">
                         <div class="d-table w-100 h-100">
                             <div class="d-table-cell text-center align-middle">
                                 <i class="fas fa-spinner fa-pulse"></i>
@@ -221,5 +222,32 @@
                 </div>
             </jsp:attribute>
         </t:modal>
+
+        <t:modal id="delete-modal" formId="delete-form" title="파일 삭제">
+            <jsp:attribute name="body">
+                아래 파일들을 삭제하시겠습니까?
+                <ul class="list-unstyled" id="delete-list">
+
+                </ul>
+            </jsp:attribute>
+            <jsp:attribute name="footer">
+                <button type="button" class="btn btn-secondary" id="delete-cancel" data-dismiss="modal">
+                    취소
+                </button>
+                <div class="position-relative">
+                    <button type="submit" class="btn btn-danger" id="delete-confirm">
+                        확인
+                    </button>
+                    <div class="modal-loading d-none">
+                        <div class="d-table w-100 h-100">
+                            <div class="d-table-cell text-center align-middle">
+                                <i class="fas fa-spinner fa-pulse"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </jsp:attribute>
+        </t:modal>
+
     </jsp:body>
 </t:bootstrap>

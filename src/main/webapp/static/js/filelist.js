@@ -36,25 +36,30 @@ $("#folder-form").on('submit', function () {
 
 $('#folder-modal').on('shown.bs.modal', function () {
     $('#folder-name-input').trigger('focus')
+}).on('hidden.bs.modal', function () {
+    $('#folder-name-input').val("");
 });
 
 
 var $uploadFiles = $("#upload-file-list");
+
 $uploadFiles.on('change', "input[type=file].file-upload", function () {
     $(this).next('.custom-file-control').text(this.files[0].name);
 }).on('click', ".upload-file-item:not(:first-of-type) .upload-file-remove", function () {
     $(this).closest(".upload-file-item").remove();
 });
+
 $("#upload-file-add").on('click', function () {
     var $cloned = $(".upload-file-item").eq(0).clone();
     $cloned.find("input[type=file]").val("");
     $cloned.find(".custom-file-control").text("");
     $uploadFiles.append($cloned);
 });
+
 $("#upload-file-form").on('submit', function (e) {
     var $files = $uploadFiles.find("input[type=file]");
     $files.attr("disabled", true);
-    $("#upload-files").attr("disabled", true).next(".upload-file-loading").removeClass("d-none");
+    $("#upload-files").attr("disabled", true).next(".modal-loading").removeClass("d-none");
 
     var filesToUpload = $files.map(function () {
         return this.files[0];
@@ -115,20 +120,60 @@ $("#upload-file-form").on('submit', function (e) {
     return false;
 });
 
-
 $("#upload-modal").on('hidden.bs.modal', function () {
     var $items = $(this).find(".upload-file-item");
-    $items.filter(":not(:first-of-type)").remove()
+    $items.filter(":not(:first-of-type)").remove();
     $items.find("input").val("");
     $items.find("custom-form-control").text("");
     $(".upload-file-loading").addClass("d-none");
 });
 
-
-$("#delete-btn").on('click', function () {
+$("#delete-btn").on('click', function (e) {
     var $checkedFolders = $(".folder-check:checked").closest(".folder-entry");
     var $checkedFiles = $(".file-check:checked").closest(".file-entry");
     var count = $checkedFolders.length + $checkedFiles.length;
+
+    if (count <= 0) return false;
+
+    var $list = $("#delete-list");
+    $list.empty();
+    $checkedFolders.each(function () {
+        var $this = $(this);
+
+        var $li = $('<li class="delete-folder"></li>')
+            .data('path', $this.data('path'))
+            .text(' ' + $this.data('name'));
+        var $input = $('<input type="hidden" name="delete-folder">')
+            .val($this.data('path'));
+
+        $li.prepend($('<i class="far fa-folder-open"></i>'));
+        $input.appendTo($li);
+        $li.appendTo($list);
+    });
+    $checkedFiles.each(function () {
+        var $this = $(this);
+
+        var $li = $('<li class="delete-file"></li>')
+            .data('path', $this.data('path'))
+            .text(' ' + $this.data('name'));
+        var $input = $('<input type="hidden" name="delete-file">')
+            .val($this.data('path'));
+
+        $li.prepend($('<i class="far fa-file"></i>'));
+        $input.appendTo($li);
+        $li.appendTo($list);
+    });
+
+    $("#delete-modal").modal('show');
+});
+var $deleteForm = $("#delete-form");
+$deleteForm.on('submit', function () {
+    $("#delete-confirm").attr("disabled", true).next(".modal-loading").removeClass("d-none");
+
+    var $folderInputs = $deleteForm.find('input[name=delete-folder]');
+    var $fileInputs = $deleteForm.find('input[name=delete-file]');
+
+    var count = $folderInputs.length + $fileInputs.length;
 
     function descCount() {
         count--;
@@ -137,16 +182,20 @@ $("#delete-btn").on('click', function () {
         }
     }
 
-    $checkedFolders.each(function () {
+    var i;
+    $folderInputs.each(function () {
         $.ajax({
             type: "DELETE",
-            url: "/deletefolder" + $(this).data("path"),
+            url: "/deletefolder" + this.value
         }).always(descCount);
     });
-    $checkedFiles.each(function () {
+
+    $fileInputs.each(function () {
         $.ajax({
             type: "DELETE",
-            url: "/deletefile" + $(this).data("path"),
+            url: "/deletefile" + this.value
         }).always(descCount);
     });
+
+    return false;
 });
