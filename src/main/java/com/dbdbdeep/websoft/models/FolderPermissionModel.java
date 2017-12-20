@@ -40,15 +40,34 @@ public class FolderPermissionModel {
 		     PreparedStatement stmt = conn.prepareStatement("SELECT folder_id FROM folder_permission WHERE user_id = ?")) {
 			stmt.setInt(1, user.getId());
 			try (ResultSet rs = stmt.executeQuery()) {
-				return readFolderPermissionIds(rs, user.getId());
+				return readFolderPermissionIdsWithUser(rs, user.getId());
 			}
 		}
 	}
 
-	private static FolderPermissionModel[] readFolderPermissionIds(ResultSet rs, int userId) throws SQLException {
+	public static FolderPermissionModel[] findPermissions(FolderModel folder) throws SQLException {
+		Database db = Database.getDatabase();
+		try (Connection conn = db.getConnection();
+		     PreparedStatement stmt = conn.prepareStatement("SELECT user_id FROM folder_permission WHERE folder_id = ?")) {
+			stmt.setInt(1, folder.getId());
+			try (ResultSet rs = stmt.executeQuery()) {
+				return readFolderPermissionIdsWithFolder(rs, folder.getId());
+			}
+		}
+	}
+
+	private static FolderPermissionModel[] readFolderPermissionIdsWithUser(ResultSet rs, int userId) throws SQLException {
 		LinkedList<FolderPermissionModel> models = new LinkedList<>();
 		while (rs.next()) {
 			models.add(FolderPermissionModel.getUnchecked(rs.getInt(1), userId));
+		}
+		return models.toArray(new FolderPermissionModel[0]);
+	}
+
+	private static FolderPermissionModel[] readFolderPermissionIdsWithFolder(ResultSet rs, int folderId) throws SQLException {
+		LinkedList<FolderPermissionModel> models = new LinkedList<>();
+		while (rs.next()) {
+			models.add(FolderPermissionModel.getUnchecked(folderId, rs.getInt(1)));
 		}
 		return models.toArray(new FolderPermissionModel[0]);
 	}

@@ -40,15 +40,34 @@ public class FilePermissionModel {
 		     PreparedStatement stmt = conn.prepareStatement("SELECT file_id FROM file_permission WHERE user_id = ?")) {
 			stmt.setInt(1, user.getId());
 			try (ResultSet rs = stmt.executeQuery()) {
-				return readFilePermissionIds(rs, user.getId());
+				return readFilePermissionIdsWithUser(rs, user.getId());
 			}
 		}
 	}
 
-	private static FilePermissionModel[] readFilePermissionIds(ResultSet rs, int userId) throws SQLException {
+	public static FilePermissionModel[] findPermissions(FileModel file) throws SQLException {
+		Database db = Database.getDatabase();
+		try (Connection conn = db.getConnection();
+		     PreparedStatement stmt = conn.prepareStatement("SELECT user_id FROM file_permission WHERE file_id = ?")) {
+			stmt.setInt(1, file.getId());
+			try (ResultSet rs = stmt.executeQuery()) {
+				return readFilePermissionIdsWithFile(rs, file.getId());
+			}
+		}
+	}
+
+	private static FilePermissionModel[] readFilePermissionIdsWithUser(ResultSet rs, int userId) throws SQLException {
 		LinkedList<FilePermissionModel> models = new LinkedList<>();
 		while (rs.next()) {
 			models.add(FilePermissionModel.getUnchecked(rs.getInt(1), userId));
+		}
+		return models.toArray(new FilePermissionModel[0]);
+	}
+
+	private static FilePermissionModel[] readFilePermissionIdsWithFile(ResultSet rs, int fileId) throws SQLException {
+		LinkedList<FilePermissionModel> models = new LinkedList<>();
+		while (rs.next()) {
+			models.add(FilePermissionModel.getUnchecked(fileId, rs.getInt(1)));
 		}
 		return models.toArray(new FilePermissionModel[0]);
 	}
