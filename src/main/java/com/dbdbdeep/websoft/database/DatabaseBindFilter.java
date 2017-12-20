@@ -1,5 +1,6 @@
 package com.dbdbdeep.websoft.database;
 
+import com.dbdbdeep.websoft.models.*;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import javax.servlet.*;
@@ -30,10 +31,26 @@ public class DatabaseBindFilter implements Filter {
 		cpds.setJdbcUrl(config.getInitParameter("url"));
 		cpds.setUser(config.getInitParameter("user"));
 		cpds.setPassword(config.getInitParameter("password"));
-		cpds.setInitialPoolSize(4);
-		cpds.setMaxStatements(200);
+		cpds.setMaxStatementsPerConnection(50);
+		cpds.setInitialPoolSize(1);
 		cpds.setAutoCommitOnClose(true);
+		cpds.setPreferredTestQuery("SELECT 1");
+		cpds.setIdleConnectionTestPeriod(10);
+		cpds.setTestConnectionOnCheckout(true);
+		cpds.setCheckoutTimeout(10000);
 		this.ds = cpds;
+
+		try(Connection conn = ds.getConnection()) {
+			Database.instances.set(new Database(conn));
+			FileModel.createTable();
+			FilePermissionModel.createTable();
+			FolderModel.createTable();
+			FolderPermissionModel.createTable();
+			UserModel.createTable();
+			Database.instances.remove();
+		} catch (SQLException e) {
+			throw new ServletException(e);
+		}
 	}
 
 	public void destroy() {
