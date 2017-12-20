@@ -48,7 +48,7 @@ public class FolderServlet extends HttpServlet {
 			}
 
 			if("copy".equals(type)){
-
+				target.clone(toFolder);
 			}
 			else if("move".equals(type)){
 				target.setParent(toFolder);
