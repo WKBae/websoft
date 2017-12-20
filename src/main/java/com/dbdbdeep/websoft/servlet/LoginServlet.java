@@ -16,13 +16,13 @@ public class LoginServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// ...
 		//request.setAttribute("asdf", "content");
-		request.getRequestDispatcher("WEB-INF/jsp/login.jsp").forward(request, response);
-
-		UserModel user = (UserModel) request.getSession(true).getAttribute("username");
+		UserModel user = (UserModel) request.getSession(true).getAttribute("user");
 		if (user != null) { //로그인이 돼있으면 바로 files 페이지로 넘어감
 			response.sendRedirect("/files/");
+			return;
 		}
 
+		request.getRequestDispatcher("WEB-INF/jsp/login.jsp").forward(request, response);
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
