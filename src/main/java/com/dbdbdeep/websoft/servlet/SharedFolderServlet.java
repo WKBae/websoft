@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Arrays;
 
-@WebServlet(name = "SharedFolderServlet", urlPatterns = "/shared/*")
+@WebServlet(name = "SharedFolderServlet", urlPatterns = "/shared/folder/*")
 public class SharedFolderServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {  //폴더 복사, 이동
 		try {

@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
 
-@WebServlet(name = "SharedFilesServlet", urlPatterns = "/shared/*")
+@WebServlet(name = "SharedFilesServlet", urlPatterns = "/shared/files/*")
 public class SharedFilesServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {

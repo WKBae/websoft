@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Arrays;
 
-@WebServlet(name = "SharedFileServlet")
+@WebServlet(name = "SharedFileServlet", urlPatterns = "/shared/file/*")
 public class SharedFileServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {  //파일 복사, 이동
 		try {
