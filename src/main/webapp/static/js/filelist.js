@@ -124,9 +124,8 @@ function reloadPage() {
 
             $.ajax({
                 type: 'PUT',
-                url: fileBase + currentPath,
+                url: fileBase + currentPath + file.name,
                 data: formData,
-                cache: false,
                 contentType: false,
                 processData: false,
                 beforeSend: function (xhr) {

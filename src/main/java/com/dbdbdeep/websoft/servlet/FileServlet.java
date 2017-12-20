@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -99,18 +98,29 @@ public class FileServlet extends HttpServlet {
 			if (path == null) path = "/";
 			String[] splitPath = path.split("/");
 			FolderModel rootFolder = FolderModel.getRoot(user);
-			FolderModel baseFolder = rootFolder.transverse(splitPath);
+			FolderModel baseFolder;
+			if(path.endsWith("/")) {
+				baseFolder = rootFolder.transverse(splitPath);
+			} else {
+				baseFolder = rootFolder.transverse(Arrays.copyOf(splitPath, splitPath.length - 1));
+			}
 			if (baseFolder == null) {
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
 				return;
 			}
 
 			Part uploaded = request.getPart("file");
-			String fileName = Paths.get(uploaded.getSubmittedFileName()).getFileName().toString(); // MSIE fix
+			String fileName;
+			if(path.endsWith("/")) {
+				fileName = Paths.get(uploaded.getSubmittedFileName()).getFileName().toString(); // MSIE fix
+			} else {
+				fileName = splitPath[splitPath.length - 1];
+			}
 			FileModel file = FileModel.create(baseFolder, fileName, user, new Date(), uploaded.getInputStream());
 
 			if (file != null) {
 				response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+				response.setHeader("Content-Location", "/files" + path + (path.endsWith("/") ? "" : "/") + fileName);
 			} else {
 				throw new IOException("File \"" + fileName + "\" cannot be created.");
 			}
