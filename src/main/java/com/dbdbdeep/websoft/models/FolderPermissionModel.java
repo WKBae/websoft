@@ -137,6 +137,12 @@ public class FolderPermissionModel {
 		Database.getDatabase().update("UPDATE folder_permission SET permittable = ? WHERE folder_id = ? AND user_id = ?", isPermittable, this.folderId, this.userId);
 	}
 
+	public FolderPermissionModel clone(FolderModel newTarget) throws SQLException {
+		Database db = Database.getDatabase();
+		db.update("INSERT INTO folder_permission (folder_id, user_id, readable, writable, permittable) SELECT ?, user_id, readable, writable, permittable FROM folder_permission WHERE folder_id=? AND user_id=?", newTarget.getId(), this.folderId, this.userId);
+		return FolderPermissionModel.getUnchecked(newTarget.getId(), this.userId);
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) return true;
