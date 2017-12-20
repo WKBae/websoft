@@ -182,6 +182,13 @@ public class FileModel {
 		}
 	}
 
+	public FileModel clone(FolderModel to) throws SQLException {
+		Database db = Database.getDatabase();
+		Integer id = db.insertGetId("INSERT INTO file (parent, name, owner, content) SELECT ?, name, owner, content FROM file WHERE id=?", to.getId(), this.id);
+		if (id == null) return null;
+		return FileModel.getUnchecked(id);
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) return true;
