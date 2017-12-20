@@ -48,17 +48,35 @@ public class FileServlet extends HttpServlet {
 			String to = request.getParameter("to");
 			String type = request.getParameter("type");//move, copy
 			String[] splitTo = to.split("/");
-			FolderModel toFolder = rootFolder.transverse(Arrays.copyOf(splitTo, splitTo.length - 1));
+
+			FolderModel toFolder;
+			if(path.endsWith("/")){
+				 toFolder = rootFolder.transverse(Arrays.copyOf(splitTo, splitTo.length - 1));
+			}
+			else{
+				toFolder = rootFolder.transverse(splitPath);
+			}
+
 			if(toFolder == null){
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;
 			}
 
 			if("copy".equals(type)){
-				target.clone(toFolder);
+				if(path.endsWith("/")) {
+					target.clone(toFolder);
+				}
+				else{
+					target.clone(toFolder, request.getParameter("filename"));
+				}
 			}
 			else if("move".equals(type)){
-				target.setParent(toFolder);
+				if(path.endsWith("/")){
+					target.setParent(toFolder);
+				}
+				else {
+					target.move(toFolder, request.getParameter("filename"));
+				}
 			}
 			else{
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);

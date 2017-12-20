@@ -19,7 +19,7 @@ public class SharedFolderPermissionServlet extends HttpServlet {
 		try {
 			UserModel user = (UserModel) request.getSession(true).getAttribute("user");
 			if (user == null) {
-				response.sendRedirect("/login");
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 				return;
 			}
 
@@ -40,16 +40,13 @@ public class SharedFolderPermissionServlet extends HttpServlet {
 				return;
 			}
 
-			FolderPermissionModel folderPermission = FolderPermissionModel.get(rootFolder, user);
+			FolderPermissionModel folderPermission = FolderPermissionModel.get(baseFolder, user);
 			if(folderPermission == null){
 				response.sendError(HttpServletResponse.SC_FORBIDDEN);
 				return;
 			}
 
 			if(folderPermission.isPermittable() == true) {
-				FolderModel folder = baseFolder.getFolder(splitPath[splitPath.length - 1]);
-				UserModel permittee = UserModel.getUser(request.getParameter("permittee"));
-
 				String readable = request.getParameter("readable");
 				boolean isReadable = false;
 				if ("Y".equals(readable)) {
@@ -60,6 +57,7 @@ public class SharedFolderPermissionServlet extends HttpServlet {
 					response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 					return;
 				}
+
 				String writable = request.getParameter("writable");
 				boolean isWritable = false;
 				if ("Y".equals(writable)) {
@@ -81,6 +79,14 @@ public class SharedFolderPermissionServlet extends HttpServlet {
 					response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 					return;
 				}
+
+				if(isPermittable && (!isReadable || !isWritable)){
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+					return;
+				}
+
+				FolderModel folder = baseFolder.getFolder(splitPath[splitPath.length - 1]);
+				UserModel permittee = UserModel.getUser(request.getParameter("permittee"));
 
 				Database db = Database.getDatabase();
 				db.beginTransaction();

@@ -37,8 +37,6 @@ public class FilePermissionServlet extends HttpServlet {
 				return;
 			}
 
-			FileModel file = baseFolder.getFile(splitPath[splitPath.length - 1]);
-			FilePermissionModel filePermission = FilePermissionModel.get(file, user);
 			String readable = request.getParameter("readable");
 			boolean isReadable = false;
 
@@ -66,6 +64,15 @@ public class FilePermissionServlet extends HttpServlet {
 				return;
 			}
 
+			if(isPermittable && !isReadable){
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+				return;
+			}
+
+			FileModel file = baseFolder.getFile(splitPath[splitPath.length - 1]);
+			UserModel permittee = UserModel.getUser(request.getParameter("permittee"));
+			FilePermissionModel filePermission = FilePermissionModel.get(file, permittee);
+
 			if(!isReadable && !isPermittable){
 				if(filePermission != null) {
 					filePermission.delete();
@@ -73,7 +80,7 @@ public class FilePermissionServlet extends HttpServlet {
 			}
 			else {
 				if(filePermission == null){
-					FilePermissionModel.create(file, user, isReadable, isPermittable);
+					FilePermissionModel.create(file, permittee, isReadable, isPermittable);
 				}
 				else {
 					filePermission.setReadable(isReadable);
