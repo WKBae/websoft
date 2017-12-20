@@ -1,6 +1,7 @@
 package com.dbdbdeep.websoft.database;
 
 import java.sql.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Database {
 	final static ThreadLocal<Database> instances = new ThreadLocal<>();
@@ -17,6 +18,25 @@ public class Database {
 
 	public Connection getConnection() throws SQLException {
 		return conn;
+	}
+
+	private AtomicInteger transactionDepth;
+
+	public void beginTransaction() throws SQLException {
+		conn.setAutoCommit(false);
+		transactionDepth.incrementAndGet();
+	}
+
+	public void endTransaction() throws SQLException {
+		endTransaction(true);
+	}
+
+	public void endTransaction(boolean success) throws SQLException {
+		if (transactionDepth.decrementAndGet() == 0) {
+			if (success) conn.commit();
+			else conn.rollback();
+			conn.setAutoCommit(true);
+		}
 	}
 
 	public Object selectSingleColumn(String sql, Object... args) throws SQLException {
