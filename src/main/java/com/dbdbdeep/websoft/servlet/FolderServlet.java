@@ -22,7 +22,7 @@ public class FolderServlet extends HttpServlet {
 		try {
 			UserModel user = (UserModel) request.getSession(true).getAttribute("user");
 			if (user == null) {
-				response.sendRedirect("/login");
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 				return;
 			}
 
@@ -31,7 +31,7 @@ public class FolderServlet extends HttpServlet {
 
 			String[] splitPath = path.split("/");
 			FolderModel rootFolder = FolderModel.getRoot(user);
-			FolderModel baseFolder = rootFolder.transverse(splitPath);
+			FolderModel baseFolder = rootFolder.transverse(Arrays.copyOf(splitPath, splitPath.length - 1));
 			if (baseFolder == null) {
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
 				return;
@@ -43,11 +43,11 @@ public class FolderServlet extends HttpServlet {
 			String[] splitTo = to.split("/");
 			FolderModel toFolder;
 
-			if(path.endsWith("/")){
-				toFolder = rootFolder.transverse(Arrays.copyOf(splitTo, splitTo.length - 1));
+			if(to.endsWith("/")){
+				toFolder = rootFolder.transverse(splitTo);
 			}
 			else{
-				toFolder = rootFolder.transverse(splitPath);
+				toFolder = rootFolder.transverse(Arrays.copyOf(splitTo, splitTo.length - 1));
 			}
 
 			if(toFolder == null){
@@ -56,24 +56,31 @@ public class FolderServlet extends HttpServlet {
 			}
 
 			if("copy".equals(type)){
-				if(path.endsWith("/")) {
+				if(to.endsWith("/")) {
 					target.clone(toFolder);
 				}
 				else{
-					target.clone(toFolder, request.getParameter("foldername"));
+					target.clone(toFolder, splitTo[splitTo.length - 1]);
 				}
 			}
 			else if("move".equals(type)){
-				if(path.endsWith("/")){
+				if(to.endsWith("/")){
 					target.setParent(toFolder);
 				}
 				else {
-					target.move(toFolder, request.getParameter("foldername"));
+					target.move(toFolder, splitTo[splitTo.length - 1]);
 				}
 			}
 			else{
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;
+			}
+
+			response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+			if(to.endsWith("/")) {
+				response.setHeader("Content-Location", "/shared/file" + to + target.getName());
+			} else {
+				response.setHeader("Content-Location", "/shared/file" + to + "/" + splitTo[splitTo.length - 1]);
 			}
 		}catch (SQLException e){
 			throw new IOException(e);
@@ -147,7 +154,7 @@ public class FolderServlet extends HttpServlet {
 			}
 
 			response.setStatus(HttpServletResponse.SC_CREATED);
-			response.setHeader("Content-Location", "/files" + path + (path.endsWith("/") ? "" : "/") + folderName + "/");
+			response.setHeader("Content-Location", "/file" + path + (path.endsWith("/") ? "" : "/") + folderName + "/");
 		} catch (SQLException e) {
 			throw new IOException(e);
 		}

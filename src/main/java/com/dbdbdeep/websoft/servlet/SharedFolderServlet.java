@@ -35,13 +35,15 @@ public class SharedFolderServlet extends HttpServlet {
 			FolderModel rootFolder = FolderModel.get(rootId);
 			if(rootFolder == null) {
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
+				return;
 			}
 			FolderPermissionModel folderPermission = FolderPermissionModel.get(rootFolder, user);
 			if(folderPermission == null) {  // 사용자가 rootFolder에 권한이 있는지 확인
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
+				return;
 			}
 
-			FolderModel baseFolder = rootFolder.transverse(splitPath);
+			FolderModel baseFolder = rootFolder.transverse(Arrays.copyOf(splitPath, splitPath.length - 1));
 			if (baseFolder == null) {
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
 				return;
@@ -51,12 +53,13 @@ public class SharedFolderServlet extends HttpServlet {
 			String to = request.getParameter("to");
 			String type = request.getParameter("type");//move, copy
 			String[] splitTo = to.split("/");
-
 			FolderModel toFolder;
-			if(path.endsWith("/")) {
+
+			if(to.endsWith("/")){
+				toFolder = rootFolder.transverse(splitTo);
+			}
+			else{
 				toFolder = rootFolder.transverse(Arrays.copyOf(splitTo, splitTo.length - 1));
-			} else {
-				toFolder = rootFolder.transverse(splitPath);
 			}
 
 			if(toFolder == null){
@@ -66,12 +69,16 @@ public class SharedFolderServlet extends HttpServlet {
 
 			FolderPermissionModel targetPermission = FolderPermissionModel.get(baseFolder, user);
 			FolderPermissionModel toFolderPermission = FolderPermissionModel.get(toFolder, user);
+			if(targetPermission == null || toFolderPermission == null) {
+				response.sendError(HttpServletResponse.SC_FORBIDDEN);
+				return;
+			}
 			if("copy".equals(type)){
 				if(targetPermission.isReadable()) {
 					if(path.endsWith("/")) {
 						target.clone(toFolder);
 					} else {
-						target.clone(toFolder, request.getParameter("foldername"));
+						target.clone(toFolder, splitTo[splitTo.length - 1]);
 					}
 				} else {
 					response.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -82,7 +89,7 @@ public class SharedFolderServlet extends HttpServlet {
 					if(path.endsWith("/")) {
 						target.setParent(toFolder);
 					} else {
-						target.move(toFolder, request.getParameter("foldername"));
+						target.move(toFolder, splitTo[splitTo.length - 1]);
 					}
 				} else {
 					response.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -91,6 +98,13 @@ public class SharedFolderServlet extends HttpServlet {
 			else{
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;
+			}
+
+			response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+			if(to.endsWith("/")) {
+				response.setHeader("Content-Location", "/shared/file" + to + target.getName());
+			} else {
+				response.setHeader("Content-Location", "/shared/file" + to + "/" + splitTo[splitTo.length - 1]);
 			}
 		}catch (SQLException e){
 			throw new IOException(e);

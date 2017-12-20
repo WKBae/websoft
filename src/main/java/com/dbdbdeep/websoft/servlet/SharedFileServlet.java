@@ -33,10 +33,12 @@ public class SharedFileServlet extends HttpServlet {
 			FolderModel rootFolder = FolderModel.get(rootId);
 			if(rootFolder == null) {
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
+				return;
 			}
 			FolderPermissionModel folderPermission = FolderPermissionModel.get(rootFolder, user);
 			if(folderPermission == null) {  // 사용자가 rootFolder에 권한이 있는지 확인
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
+				return;
 			}
 
 			FolderModel baseFolder = rootFolder.transverse(Arrays.copyOf(splitPath, splitPath.length - 1));
@@ -48,14 +50,20 @@ public class SharedFileServlet extends HttpServlet {
 			FileModel target = baseFolder.getFile(splitPath[splitPath.length - 1]);
 			String to = request.getParameter("to");
 			String type = request.getParameter("type");//move, copy
+
+			if(to == null || type == null){
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+				return;
+			}
+
 			String[] splitTo = to.split("/");
 
 			FolderModel toFolder;
-			if(path.endsWith("/")){
-				toFolder = rootFolder.transverse(Arrays.copyOf(splitTo, splitTo.length - 1));
+			if(to.endsWith("/")){
+				toFolder = rootFolder.transverse(splitTo);
 			}
 			else{
-				toFolder = rootFolder.transverse(splitPath);
+				toFolder = rootFolder.transverse(Arrays.copyOf(splitTo, splitTo.length - 1));
 			}
 
 			if(toFolder == null){
@@ -65,12 +73,16 @@ public class SharedFileServlet extends HttpServlet {
 
 			FolderPermissionModel targetPermission = FolderPermissionModel.get(baseFolder, user);
 			FolderPermissionModel toFolderPermission = FolderPermissionModel.get(toFolder, user);
+			if(targetPermission == null || toFolderPermission == null) {
+				response.sendError(HttpServletResponse.SC_FORBIDDEN);
+				return;
+			}
 			if("copy".equals(type)){
-				if(targetPermission.isReadable()) {
-					if (path.endsWith("/")) {
+				if(targetPermission.isReadable() && toFolderPermission.isWritable()) {
+					if (to.endsWith("/")) {
 						target.clone(toFolder);
 					} else {
-						target.clone(toFolder, request.getParameter("filename"));
+						target.clone(toFolder, splitTo[splitTo.length - 1]);
 					}
 				} else {
 					response.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -79,18 +91,26 @@ public class SharedFileServlet extends HttpServlet {
 			}
 			else if("move".equals(type)){
 				if(targetPermission.isWritable() && toFolderPermission.isWritable()) {
-					if (path.endsWith("/")) {
+					if (to.endsWith("/")) {
 						target.setParent(toFolder);
 					} else {
-						target.move(toFolder, request.getParameter("filename"));
+						target.move(toFolder, splitTo[splitTo.length - 1]);
 					}
 				} else {
 					response.sendError(HttpServletResponse.SC_FORBIDDEN);
+					return;
 				}
 			}
 			else{
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;
+			}
+
+			response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+			if(to.endsWith("/")) {
+				response.setHeader("Content-Location", "/shared/file" + to + target.getName());
+			} else {
+				response.setHeader("Content-Location", "/shared/file" + to + "/" + splitTo[splitTo.length - 1]);
 			}
 		}catch (SQLException e){
 			throw new IOException(e);

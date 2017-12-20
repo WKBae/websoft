@@ -156,6 +156,48 @@ function reloadPage() {
     });
 })();
 
+(function rename() {
+    $("#rename-form").on('submit', function () {
+        var $checked = $(".folder-check:checked").closest(".folder-entry");
+        if($checked.length == 1) {
+            $.ajax({
+                type: "POST",
+                url: folderBase + $checked.data('path').slice(0, -1),
+                data: {
+                    to: currentPath + $("#rename-input").val(),
+                    type: 'move'
+                },
+                success: function () {
+                    reloadPage();
+                }
+            });
+            return false;
+        } else {
+            $checked = $(".file-check:checked").closest(".file-entry");
+            if ($checked.length == 1) {
+                $.ajax({
+                    type: "POST",
+                    url: fileBase + $checked.data('path'),
+                    data: {
+                        to: currentPath + $("#rename-input").val(),
+                        type: 'move'
+                    },
+                    success: function () {
+                        reloadPage();
+                    }
+                });
+                return false;
+            }
+        }
+    });
+
+    $('#rename-modal').on('shown.bs.modal', function () {
+        $('#rename-input').trigger('focus')
+    }).on('hidden.bs.modal', function () {
+        $('#rename-input').val("");
+    });
+})();
+
 (function deletation() {
     $("#delete-btn").on('click', function (e) {
         var $checkedFolders = $(".folder-check:checked").closest(".folder-entry");
