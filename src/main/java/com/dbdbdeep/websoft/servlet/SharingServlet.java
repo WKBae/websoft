@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -24,21 +23,13 @@ public class SharingServlet extends HttpServlet {
 				return;
 			}
 
-			FolderPermissionModel[] folders = FolderPermissionModel.findPermissions(user);  //사용자에게 권한이 있는 모든 폴더
-			FilePermissionModel[] files =  FilePermissionModel.findPermissions(user);  //사용자에게 권한이 있는 모든 파일
-
-			ArrayList<FolderModel> ownFolders = new ArrayList<>();
-			for(int i = 0; i < folders.length; i++) {  //사용자가 공유한 폴더 찾기
-				FolderModel folder = folders[i].getFolder();
-				if(folder.getOwner().equals(user)) {
-					ownFolders.add(folder);
-				}
-			}
+			FolderModel[] sharingFolders = FolderModel.getSharing(user);
+			FileModel[] sharingFiles = FileModel.getSharing(user);
 
 			//  폴더의 최상위 폴더 찾기
 			HashSet<FolderModel> rootFolders = new HashSet<>();  //최상위 폴더들만 갖고있는 변수
-			for (int i = 0; i < ownFolders.size(); i++) {
-				FolderModel folder = ownFolders.get(i);
+			for (int i = 0; i < sharingFolders.length; i++) {
+				FolderModel folder = sharingFolders[i].get(i);
 				boolean topmostFound = false;
 				while (!topmostFound) {
 					FolderModel parentFolder = folder.getParent();  //folder의 부모폴더 가져오기
@@ -53,14 +44,6 @@ public class SharingServlet extends HttpServlet {
 						}
 					}
 					folder = parentFolder;
-				}
-			}
-
-			ArrayList<FileModel> ownFiles = new ArrayList<>();
-			for(int i = 0; i < files.length; i++) {  //사용자가 공유한 파일 찾기
-				FileModel file = files[i].getFile();
-				if(file.getOwner().equals(user)) {
-					ownFiles.add(file);
 				}
 			}
 
@@ -81,7 +64,7 @@ public class SharingServlet extends HttpServlet {
 			}
 
 			HashMap<String, FileModel> fileMap = new HashMap<>();
-			for(FileModel file : ownFiles) {
+			for(FileModel file : sharingFiles) {
 				LinkedList<String> pathList = new LinkedList<>();
 				for(FolderModel current = file.getParent(); current != null; current = current.getParent()) {
 					pathList.addFirst(current.getName());
