@@ -30,7 +30,7 @@ public class SharedSearchServlet extends HttpServlet {
 			String keyword = request.getParameter("keyword");
 			String path = request.getPathInfo();
 			if (path == null) {
-				response.sendRedirect(response.encodeRedirectURL("/search/?keyword=" + keyword));
+				response.sendRedirect(response.encodeRedirectURL("shared/search/?keyword=" + keyword));
 				return;
 			}
 			if (keyword == null || keyword.length() == 0) {
