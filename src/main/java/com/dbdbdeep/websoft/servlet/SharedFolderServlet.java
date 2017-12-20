@@ -19,7 +19,7 @@ public class SharedFolderServlet extends HttpServlet {
 		try {
 			UserModel user = (UserModel) request.getSession(true).getAttribute("user");
 			if (user == null) {
-				response.sendRedirect("/login");
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 				return;
 			}
 
@@ -47,17 +47,42 @@ public class SharedFolderServlet extends HttpServlet {
 			String to = request.getParameter("to");
 			String type = request.getParameter("type");//move, copy
 			String[] splitTo = to.split("/");
-			FolderModel toFolder = rootFolder.transverse(Arrays.copyOf(splitTo, splitTo.length - 1));
+
+			FolderModel toFolder;
+			if(path.endsWith("/")) {
+				toFolder = rootFolder.transverse(Arrays.copyOf(splitTo, splitTo.length - 1));
+			} else {
+				toFolder = rootFolder.transverse(splitPath);
+			}
+
 			if(toFolder == null){
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;
 			}
 
+			FolderPermissionModel targetPermission = FolderPermissionModel.get(baseFolder, user);
+			FolderPermissionModel toFolderPermission = FolderPermissionModel.get(toFolder, user);
 			if("copy".equals(type)){
-				target.clone(toFolder);
+				if(targetPermission.isReadable()) {
+					if(path.endsWith("/")) {
+						target.clone(toFolder);
+					} else {
+						target.clone(toFolder, request.getParameter("foldername"));
+					}
+				} else {
+					response.sendError(HttpServletResponse.SC_FORBIDDEN);
+				}
 			}
 			else if("move".equals(type)){
-				target.setParent(toFolder);
+				if(targetPermission.isWritable() && toFolderPermission.isWritable()) {
+					if(path.endsWith("/")) {
+						target.setParent(toFolder);
+					} else {
+						target.move(toFolder, request.getParameter("foldername"));
+					}
+				} else {
+					response.sendError(HttpServletResponse.SC_FORBIDDEN);
+				}
 			}
 			else{
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);

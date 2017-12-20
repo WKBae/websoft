@@ -16,7 +16,7 @@ public class SharedFilePermissionServlet extends HttpServlet {
 		try {
 			UserModel user = (UserModel) request.getSession(true).getAttribute("user");
 			if (user == null) {
-				response.sendRedirect("/login");
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 				return;
 			}
 
@@ -39,15 +39,13 @@ public class SharedFilePermissionServlet extends HttpServlet {
 				return;
 			}
 
-			FolderPermissionModel folderPermission = FolderPermissionModel.get(rootFolder, user);
+			FolderPermissionModel folderPermission = FolderPermissionModel.get(baseFolder, user);
 			if(folderPermission == null){
 				response.sendError(HttpServletResponse.SC_FORBIDDEN);
 				return;
 			}
 
 			if(folderPermission.isPermittable() == true) {
-				FileModel file = baseFolder.getFile(splitPath[splitPath.length - 1]);
-				FilePermissionModel filePermission = FilePermissionModel.get(file, user);
 				String readable = request.getParameter("readable");
 				boolean isReadable = false;
 
@@ -70,6 +68,15 @@ public class SharedFilePermissionServlet extends HttpServlet {
 					response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 					return;
 				}
+
+				if(isPermittable && !isReadable) {
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+					return;
+				}
+
+				FileModel file = baseFolder.getFile(splitPath[splitPath.length - 1]);
+				UserModel permittee = UserModel.getUser(request.getParameter("permittee"));
+				FilePermissionModel filePermission = FilePermissionModel.get(file, permittee);
 
 				if (!isReadable && !isPermittable) {
 					if (filePermission != null) {

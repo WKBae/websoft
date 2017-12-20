@@ -189,6 +189,17 @@ public class FileModel {
 		return FileModel.getUnchecked(id);
 	}
 
+	public FileModel clone(FolderModel to, String destName) throws SQLException {
+		Database db = Database.getDatabase();
+		Integer id = db.insertGetId("INSERT INTO file (parent, name, owner, content) SELECT ?, ?, owner, content FROM file WHERE id=?", to.getId(), destName, this.id);
+		if (id == null) return null;
+		return FileModel.getUnchecked(id);
+	}
+
+	public void move(FolderModel to, String destName) throws SQLException {
+		Database.getDatabase().update("UPDATE file SET parent=?, name=? WHERE id=?", to.getId(), destName, this.id);
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) return true;

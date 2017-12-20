@@ -38,9 +38,6 @@ public class FolderPermissionServlet extends HttpServlet {
 				return;
 			}
 
-			FolderModel folder = baseFolder.getFolder(splitPath[splitPath.length - 1]);
-			UserModel permittee = UserModel.getUser(request.getParameter("permittee"));
-
 			String readable = request.getParameter("readable");
 			boolean isReadable = false;
 			if("Y".equals(readable)){
@@ -78,6 +75,14 @@ public class FolderPermissionServlet extends HttpServlet {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;
 			}
+
+			if(isPermittable && !isReadable){
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+				return;
+			}
+
+			FolderModel folder = baseFolder.getFolder(splitPath[splitPath.length - 1]);
+			UserModel permittee = UserModel.getUser(request.getParameter("permittee"));
 
 			Database db = Database.getDatabase();
 			db.beginTransaction();

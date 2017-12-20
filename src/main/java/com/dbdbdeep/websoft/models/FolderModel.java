@@ -244,6 +244,31 @@ public class FolderModel {
 		}
 	}
 
+	public FolderModel clone(FolderModel to, String destName) throws SQLException {
+		Database db = Database.getDatabase();
+		db.beginTransaction();
+		boolean successful = false;
+		try {
+			Integer id = db.insertGetId("INSERT INTO folder (parent, name, owner) SELECT ?, ?, owner FROM folder WHERE id=?", to.getId(), destName, this.id);
+			if (id == null) return null;
+			FolderModel newFolder = FolderModel.getUnchecked(id);
+			for (FolderModel folder : this.getFolders()) {
+				folder.clone(newFolder);
+			}
+			for (FileModel file : this.getFiles()) {
+				file.clone(newFolder);
+			}
+			successful = true;
+			return newFolder;
+		} finally {
+			db.endTransaction(successful);
+		}
+	}
+
+	public void move(FolderModel to, String destName) throws SQLException {
+		Database.getDatabase().update("UPDATE folder SET parent=?, name=? WHERE id=?", to.getId(), destName, this.id);
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) return true;
