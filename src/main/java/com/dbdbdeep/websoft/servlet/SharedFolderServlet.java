@@ -10,9 +10,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 
-@WebServlet(name = "SharedFolderServlet", urlPatterns = "/sharedfolder/*")
+@WebServlet(name = "SharedFolderServlet", urlPatterns = "/shared/*")
 public class SharedFolderServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
@@ -52,8 +53,20 @@ public class SharedFolderServlet extends HttpServlet {
 				rootFiles.add(files[i].getFile());
 			}
 
-			request.setAttribute("folders", rootFolders);
-			request.setAttribute("files", rootFiles);
+			String path = request.getPathInfo();
+			HashMap<String, FolderModel> folderMap = new HashMap<>();
+			for(FolderModel folder : rootFolders) {
+				folderMap.put("/" + folder.getId() + "/", folder);
+			}
+
+			HashMap<String, FileModel> fileMap = new HashMap<>();
+			for(FileModel file : rootFiles) {
+				fileMap.put("/" + file.getId() + "/", file);
+			}
+
+			request.setAttribute("path", path);
+			request.setAttribute("folders", folderMap);
+			request.setAttribute("files", fileMap);
 			request.getRequestDispatcher("/WEB-INF/jsp/shared_folder.jsp").forward(request, response);
 		} catch (SQLException e) {
 			throw new IOException(e);
