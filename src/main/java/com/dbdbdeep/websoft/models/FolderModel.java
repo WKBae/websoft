@@ -59,7 +59,13 @@ public class FolderModel {
 				owner != null ? owner.getId() : null,
 				new Timestamp(created.getTime())
 		);
-		return (id == null) ? null : new FolderModel(id);
+		if(id == null) return null;
+		FolderModel newFolder = new FolderModel(id);
+		FolderPermissionModel[] permissions = FolderPermissionModel.findPermissions(parent);
+		for(FolderPermissionModel permission : permissions) {
+			permission.clone(newFolder);
+		}
+		return newFolder;
 	}
 
 	public static FolderModel create(FolderModel parent, String name, UserModel owner) throws SQLException {
