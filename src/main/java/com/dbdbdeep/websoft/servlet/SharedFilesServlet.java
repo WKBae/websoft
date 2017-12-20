@@ -4,6 +4,7 @@ import com.dbdbdeep.websoft.models.FileModel;
 import com.dbdbdeep.websoft.models.FolderModel;
 import com.dbdbdeep.websoft.models.FolderPermissionModel;
 import com.dbdbdeep.websoft.models.UserModel;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.HashMap;
 
 @WebServlet(name = "SharedFilesServlet", urlPatterns = "/shared/files/*")
@@ -23,25 +25,26 @@ public class SharedFilesServlet extends HttpServlet {
 				return;
 			}
 
-			String path = request.getPathInfo();
+			String path = request.getPathInfo();System.out.println(path);
 			if (path == null) {
 				response.sendRedirect("/shared/");
 				return;
 			}
 
 			String[] splitPath = path.split("/");
-
-			int rootId = Integer.parseInt(splitPath[0]);
+			int rootId = Integer.parseInt(splitPath[1]);
 			FolderModel rootFolder = FolderModel.get(rootId);
 			if(rootFolder == null) {
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
+				return;
 			}
 			FolderPermissionModel folderPermission = FolderPermissionModel.get(rootFolder, user);
 			if(folderPermission == null) {  // 사용자가 rootFolder에 권한이 있는지 확인
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
+				return;
 			}
 
-			FolderModel baseFolder = rootFolder.transverse(splitPath);
+			FolderModel baseFolder = rootFolder.transverse(Arrays.copyOfRange(splitPath, 2, splitPath.length));
 			if (baseFolder == null) {
 				response.sendRedirect("/shared/");
 				return;

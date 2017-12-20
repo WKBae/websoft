@@ -1,7 +1,6 @@
 package com.dbdbdeep.websoft.servlet;
 
 import com.dbdbdeep.websoft.database.Database;
-import com.dbdbdeep.websoft.models.FilePermissionModel;
 import com.dbdbdeep.websoft.models.FolderModel;
 import com.dbdbdeep.websoft.models.FolderPermissionModel;
 import com.dbdbdeep.websoft.models.UserModel;
@@ -16,7 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
-import java.util.Arrays;
 
 @WebServlet(name = "FolderPermissionServlet" , urlPatterns = "/permission/folder/*")
 public class FolderPermissionServlet extends HttpServlet {
@@ -84,7 +82,7 @@ public class FolderPermissionServlet extends HttpServlet {
 				return;
 			}
 
-			FolderModel folder = baseFolder.getFolder(splitPath[splitPath.length - 1]);
+			FolderModel folder = baseFolder;
 			UserModel permittee = UserModel.getUser(request.getParameter("permittee"));
 
 			Database db = Database.getDatabase();
