@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Arrays;
 
 @WebServlet(name = "DeleteFolderServlet", urlPatterns = "/deletefolder/*")
 public class DeleteFolderServlet extends HttpServlet {
@@ -25,13 +24,13 @@ public class DeleteFolderServlet extends HttpServlet {
 				String[] splitPath = path.split("/");
 
 				FolderModel rootFolder = FolderModel.getRoot(user);
-				FolderModel deletedFolder = rootFolder.transverse(Arrays.copyOf(splitPath, splitPath.length - 1));
+				FolderModel deletedFolder = rootFolder.transverse(splitPath);
 				if (deletedFolder == null) {
 					response.sendError(HttpServletResponse.SC_NOT_FOUND);
 					return;
 				}
-
 				deletedFolder.delete();
+
 				response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 			}
 		} catch (SQLException e) {
