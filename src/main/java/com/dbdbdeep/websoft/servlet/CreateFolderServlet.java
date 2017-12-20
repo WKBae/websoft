@@ -34,11 +34,12 @@ public class CreateFolderServlet extends HttpServlet {
 			}
 			String folderName = request.getParameter("folderName");
 
-			if (baseFolder.getFolder(folderName) != null) {
+			if (baseFolder.getFolder(folderName) == null) {
 				FolderModel.create(baseFolder, folderName, user);
 			}
 
-			response.sendRedirect("/files" + path + "/" + folderName);
+			response.setStatus(HttpServletResponse.SC_CREATED);
+			response.setHeader("Content-Location", "/files" + path + (path.endsWith("/") ? "" : "/") + folderName + "/");
 		} catch (SQLException e) {
 			throw new IOException(e);
 		}

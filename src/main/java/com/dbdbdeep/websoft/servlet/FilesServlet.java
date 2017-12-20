@@ -33,7 +33,7 @@ public class FilesServlet extends HttpServlet {
 			String[] splitPath = path.split("/");
 			FolderModel baseFolder = rootFolder.transverse(splitPath);
 			if (baseFolder == null) {
-				response.sendRedirect("/files/");
+				response.sendError(HttpServletResponse.SC_NOT_FOUND);
 				return;
 			}
 
