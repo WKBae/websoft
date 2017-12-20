@@ -1,5 +1,6 @@
 package com.dbdbdeep.websoft.servlet;
 
+import com.dbdbdeep.websoft.models.FileModel;
 import com.dbdbdeep.websoft.models.FolderModel;
 import com.dbdbdeep.websoft.models.FolderPermissionModel;
 import com.dbdbdeep.websoft.models.UserModel;
@@ -13,9 +14,9 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Arrays;
 
-@WebServlet(name = "SharedFolderServlet", urlPatterns = "/shared/folder/*")
-public class SharedFolderServlet extends HttpServlet {
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {  //폴더 복사, 이동
+@WebServlet(name = "SharedFileServlet", urlPatterns = "/shared/file/*")
+public class SharedFileServlet extends HttpServlet {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {  //파일 복사, 이동
 		try {
 			UserModel user = (UserModel) request.getSession(true).getAttribute("user");
 			if (user == null) {
@@ -37,13 +38,13 @@ public class SharedFolderServlet extends HttpServlet {
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			}
 
-			FolderModel baseFolder = rootFolder.transverse(splitPath);
+			FolderModel baseFolder = rootFolder.transverse(Arrays.copyOf(splitPath, splitPath.length - 1));
 			if (baseFolder == null) {
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
 				return;
 			}
 
-			FolderModel target = baseFolder.getFolder(splitPath[splitPath.length - 1]);
+			FileModel target = baseFolder.getFile(splitPath[splitPath.length - 1]);
 			String to = request.getParameter("to");
 			String type = request.getParameter("type");//move, copy
 			String[] splitTo = to.split("/");
@@ -68,7 +69,7 @@ public class SharedFolderServlet extends HttpServlet {
 		}
 	}
 
-	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {  //폴더 삭제
+	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {  //파일 삭제
 		try {
 			UserModel user = (UserModel) request.getSession(true).getAttribute("user");
 
@@ -77,6 +78,7 @@ public class SharedFolderServlet extends HttpServlet {
 			} else {
 				String path = request.getPathInfo();
 				String[] splitPath = path.split("/");
+				String filename = splitPath[splitPath.length - 1];
 
 				int rootId = Integer.parseInt(splitPath[0]);
 				FolderModel rootFolder = FolderModel.get(rootId);
@@ -88,13 +90,19 @@ public class SharedFolderServlet extends HttpServlet {
 					response.sendError(HttpServletResponse.SC_NOT_FOUND);
 				}
 
-				FolderModel deletedFolder = rootFolder.transverse(splitPath);
-				if (deletedFolder == null) {
+				FolderModel baseFolder = rootFolder.transverse(Arrays.copyOf(splitPath, splitPath.length - 1));
+				if (baseFolder == null) {
 					response.sendError(HttpServletResponse.SC_NOT_FOUND);
 					return;
 				}
-				deletedFolder.delete();
 
+				FileModel deletedFile = baseFolder.getFile(filename);
+				if (deletedFile == null) {
+					response.sendError(HttpServletResponse.SC_NOT_FOUND);
+					return;
+				}
+
+				deletedFile.delete();
 				response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 			}
 		} catch (SQLException e) {
