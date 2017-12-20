@@ -61,7 +61,7 @@ public class SharedServlet extends HttpServlet {
 
 			HashMap<String, FileModel> fileMap = new HashMap<>();
 			for(FileModel file : rootFiles) {
-				fileMap.put("/" + file.getId() + "/", file);
+				fileMap.put("/" + file.getId(), file);
 			}
 
 			request.setAttribute("path", path);

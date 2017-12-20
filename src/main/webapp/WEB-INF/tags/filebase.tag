@@ -11,6 +11,7 @@
 <%@ attribute name="listBase" %>
 <%@ attribute name="fileBase" %>
 <%@ attribute name="folderBase" %>
+<%@ attribute name="permissionBase" %>
 
 <%@ attribute name="canCreate" type="java.lang.Boolean" %>
 <c:set var="canCreate" value="${empty canCreate? false : canCreate}"/>
@@ -55,6 +56,7 @@
             var currentPath = "${util:escapeJS(path)}";
             var fileBase = "${util:escapeJS(fileBase)}";
             var folderBase = "${util:escapeJS(folderBase)}";
+            var permissionBase = "${util:escapeJS(permissionBase)}";
         </script>
         <script src="<c:url value="/static/js/filelist.js"/>"></script>
     </jsp:attribute>
@@ -146,33 +148,35 @@
 </c:if>
                     </div>
 
-                    <div class="list-group d-none" id="choice-actions">
+                    <div class="list-group d-none mb-3" id="choice-actions">
 <c:if test="${canModify}">
-                        <a href="#" class="list-group-item list-group-item-action action action-single"
+                        <a href="#" class="list-group-item list-group-item-action action action-single action-file action-folder"
                            data-toggle="modal" data-target="#rename-modal" id="rename-btn">
                             <i class="far fa-edit"></i> 이름 바꾸기
                         </a>
 </c:if>
 <c:if test="${canModify}">
-                        <a href="#" class="list-group-item list-group-item-action action action-single action-multiple"
+                        <a href="#" class="list-group-item list-group-item-action action action-single action-multiple action-file action-folder"
                            id="copy-btn">
                             <i class="far fa-copy"></i> 복사
                         </a>
 </c:if>
 <c:if test="${canModify}">
-                        <a href="#" class="list-group-item list-group-item-action action action-single action-multiple"
+                        <a href="#" class="list-group-item list-group-item-action action action-single action-multiple action-file action-folder"
                            id="move-btn">
                             <i class="far fa-inbox-out"></i> 이동
                         </a>
 </c:if>
-<c:if test="${canModify}">
-                        <a href="#" class="list-group-item list-group-item-action action action-single action-multiple"
-                           id="permit-btn">
+                        <a href="#" class="list-group-item list-group-item-action action action-single action-file" data-toggle="modal" data-target="#permit-file-modal"
+                           id="permit-file-btn">
                             <i class="far fa-file-check"></i> 권한 설정
                         </a>
-</c:if>
+                        <a href="#" class="list-group-item list-group-item-action action action-single action-folder" data-toggle="modal" data-target="#permit-folder-modal"
+                           id="permit-folder-btn">
+                            <i class="far fa-file-check"></i> 권한 설정
+                        </a>
 <c:if test="${canModify}">
-                        <a href="#" class="list-group-item list-group-item-action list-group-item-danger action action-single action-multiple"
+                        <a href="#" class="list-group-item list-group-item-action list-group-item-danger action action-single action-multiple action-file action-folder"
                            id="delete-btn">
                             <i class="far fa-trash"></i> 삭제
                         </a>
@@ -330,6 +334,82 @@
             </jsp:attribute>
         </t:modal>
 </c:if>
+
+        <t:modal id="permit-folder-modal" formId="permit-folder-form" title="폴더 공유">
+            <jsp:attribute name="body">
+                이 폴더에 대해 주어진 권한:
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">사용자명</th>
+                            <th scope="col">읽기</th>
+                            <th scope="col">쓰기</th>
+                            <th scope="col">권한부여</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4">
+                                <button role="button" class="btn btn-link" id="permit-folder-add"><i class="far fa-plus"></i> 추가하기</button>
+                            </td>
+                        </tr>
+                    </tfoot>
+                    <tbody id="permit-folder-table">
+                    </tbody>
+                </table>
+            </jsp:attribute>
+            <jsp:attribute name="footer">
+                <button type="button" class="btn btn-secondary" id="permit-folder-cancel" data-dismiss="modal">
+                    취소
+                </button>
+                <div class="position-relative">
+                    <button type="submit" class="btn btn-primary" id="permit-folder-confirm">
+                        확인
+                    </button>
+                    <div class="modal-loading d-none">
+                        <div class="d-table w-100 h-100">
+                            <div class="d-table-cell text-center align-middle">
+                                <i class="fas fa-spinner fa-pulse"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </jsp:attribute>
+        </t:modal>
+
+        <t:modal id="permit-file-modal" formId="permit-file-form" title="파일 공유">
+            <jsp:attribute name="body">
+                이 파일에 대해 주어진 권한:
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">사용자명</th>
+                            <th scope="col">읽기</th>
+                            <th scope="col">권한부여</th>
+                        </tr>
+                    </thead>
+                    <tbody id="permit-file-table">
+                    </tbody>
+                </table>
+            </jsp:attribute>
+            <jsp:attribute name="footer">
+                <button type="button" class="btn btn-secondary" id="permit-file-cancel" data-dismiss="modal">
+                    취소
+                </button>
+                <div class="position-relative">
+                    <button type="submit" class="btn btn-primary" id="permit-file-confirm">
+                        확인
+                    </button>
+                    <div class="modal-loading d-none">
+                        <div class="d-table w-100 h-100">
+                            <div class="d-table-cell text-center align-middle">
+                                <i class="fas fa-spinner fa-pulse"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </jsp:attribute>
+        </t:modal>
 
     </jsp:body>
 </t:bootstrap>

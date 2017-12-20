@@ -23,7 +23,7 @@ public class FileModel {
 							"content LONGBLOB NOT NULL," +
 							"PRIMARY KEY (id)," +
 							"FOREIGN KEY (parent) REFERENCES folder(id) ON DELETE CASCADE," +
-							"FOREIGN KEY (owener) REFERENCES user(id) ON DELETE CASCADE," +
+							"FOREIGN KEY (owner) REFERENCES user(id) ON DELETE CASCADE," +
 							"UNIQUE (parent, name)" +
 							") DEFAULT CHARACTER SET utf8;"
 			);

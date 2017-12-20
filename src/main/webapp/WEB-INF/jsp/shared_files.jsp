@@ -6,11 +6,11 @@
         files="${files}"
         folders="${folders}"
 
-        searchBase="/search"
-        listBase="/files"
-        fileBase="/file"
-        folderBase="/folder"
-        permissionBase="/permission"
+        searchBase="/shared/search"
+        listBase="/shared/files"
+        fileBase="/shared/file"
+        folderBase="/shared/folder"
+        permissionBase="/permission/shared"
 
         canCreate="true"
         canModify="true"

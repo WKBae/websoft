@@ -20,7 +20,7 @@ public class Database {
 		return conn;
 	}
 
-	private AtomicInteger transactionDepth;
+	private AtomicInteger transactionDepth = new AtomicInteger();
 
 	public void beginTransaction() throws SQLException {
 		conn.setAutoCommit(false);

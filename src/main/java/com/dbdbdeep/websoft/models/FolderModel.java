@@ -11,7 +11,7 @@ public class FolderModel {
 	public static void createTable() throws SQLException {
 		try (Connection conn = Database.getDatabase().getConnection()) {
 			PreparedStatement stmt = conn.prepareStatement(
-					"CREATE TABLE folder (" +
+					"CREATE TABLE IF NOT EXISTS folder (" +
 							"id INT NOT NULL AUTO_INCREMENT," +
 							"parent INT," +
 							"name VARCHAR(100) NOT NULL," +
