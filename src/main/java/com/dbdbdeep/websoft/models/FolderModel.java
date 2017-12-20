@@ -73,6 +73,17 @@ public class FolderModel {
 		return (id == null) ? null : new FolderModel(id);
 	}
 
+	public static FolderModel[] getSharing(UserModel owner) throws SQLException {
+		Database db = Database.getDatabase();
+		try (Connection conn = db.getConnection();
+		     PreparedStatement stmt = conn.prepareStatement("SELECT f.id FROM folder f RIGHT JOIN folder_permission p ON f.id=p.folder_id WHERE f.owner=?")) {
+			stmt.setInt(1, owner.getId());
+			try (ResultSet rs = stmt.executeQuery()) {
+				return readFolderIds(rs);
+			}
+		}
+	}
+
 	public void delete() throws SQLException {
 		Database.getDatabase().update("DELETE FROM folder WHERE id=?", this.id);
 	}
@@ -133,7 +144,7 @@ public class FolderModel {
 		return (id == null) ? null : FileModel.getUnchecked(id);
 	}
 
-	private FolderModel[] readFolderIds(ResultSet rs) throws SQLException {
+	private static FolderModel[] readFolderIds(ResultSet rs) throws SQLException {
 		LinkedList<FolderModel> models = new LinkedList<>();
 		while (rs.next()) {
 			models.add(FolderModel.getUnchecked(rs.getInt(1)));
@@ -141,7 +152,7 @@ public class FolderModel {
 		return models.toArray(new FolderModel[0]);
 	}
 
-	private FileModel[] readFileIds(ResultSet rs) throws SQLException {
+	private static FileModel[] readFileIds(ResultSet rs) throws SQLException {
 		LinkedList<FileModel> models = new LinkedList<>();
 		while (rs.next()) {
 			models.add(FileModel.getUnchecked(rs.getInt(1)));

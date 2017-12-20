@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
 import java.util.Date;
+import java.util.LinkedList;
 
 
 public class FileModel {
@@ -96,6 +97,26 @@ public class FileModel {
 			}
 		}
 	}
+
+	public static FileModel[] getSharing(UserModel owner) throws SQLException {
+		Database db = Database.getDatabase();
+		try (Connection conn = db.getConnection();
+		     PreparedStatement stmt = conn.prepareStatement("SELECT f.id FROM file f RIGHT JOIN file_permission p ON f.id=p.file_id WHERE f.owner=?")) {
+			stmt.setInt(1, owner.getId());
+			try (ResultSet rs = stmt.executeQuery()) {
+				return readFileIds(rs);
+			}
+		}
+	}
+
+	private static FileModel[] readFileIds(ResultSet rs) throws SQLException {
+		LinkedList<FileModel> models = new LinkedList<>();
+		while (rs.next()) {
+			models.add(FileModel.getUnchecked(rs.getInt(1)));
+		}
+		return models.toArray(new FileModel[0]);
+	}
+
 
 	public void delete() throws SQLException {
 		Database.getDatabase().update("DELETE FROM file WHERE id=?", this.id);
