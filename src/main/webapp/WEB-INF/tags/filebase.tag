@@ -155,95 +155,71 @@
             </div>
         </div>
 
-        <div class="modal fade" id="folder-modal" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <form id="folder-form">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="folder-modal-title">폴더 생성...</h5>
-                            <button type="button" class="close" data-dismiss="modal">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <label for="folder-name-input">폴더 이름</label>
-                                <input type="text" class="form-control" id="folder-name-input" placeholder="생성할 폴더의 이름"
-                                       required>
-                                <div class="invalid-feedback">
-                                    폴더명을 입력해주세요.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" id="folder-cancel" data-dismiss="modal">
-                                취소
-                            </button>
-                            <button type="submit" class="btn btn-primary" id="folder-create">
-                                확인
-                            </button>
-                        </div>
-                    </form>
+        <t:modal id="folder-modal" formId="folder-form" title="폴더 생성...">
+            <jsp:attribute name="body">
+                <div class="form-group">
+                    <label for="folder-name-input">폴더 이름</label>
+                    <input type="text" class="form-control" id="folder-name-input" placeholder="생성할 폴더의 이름"
+                           required>
+                    <div class="invalid-feedback">
+                        폴더명을 입력해주세요.
+                    </div>
                 </div>
-            </div>
-        </div>
+            </jsp:attribute>
+            <jsp:attribute name="footer">
+                <button type="button" class="btn btn-secondary" id="folder-cancel" data-dismiss="modal">
+                    취소
+                </button>
+                <button type="submit" class="btn btn-primary" id="folder-create">
+                    확인
+                </button>
+            </jsp:attribute>
+        </t:modal>
 
-        <div class="modal fade" id="upload-modal" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <form id="upload-file-form">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="upload-modal-title">파일 업로드</h5>
-                            <button type="button" class="close" data-dismiss="modal">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="container-fluid px-0">
-                                <div class="row" id="upload-file-list">
-                                    <div class="col-12 pb-1 upload-file-item">
-                                        <div class="upload-file-input">
-                                            <button class="btn btn-link btn-sm px-1 text-danger upload-file-remove">
-                                                <i class="far fa-minus"></i></button>
-                                            <label class="custom-file ml-2">
-                                                <input type="file" class="custom-file-input file-upload" required>
-                                                <span class="custom-file-control"></span>
-                                            </label>
-                                        </div>
-                                        <div class="upload-file-progress d-none">
-                                            <span class="filename"></span>
-                                            <div class="progress">
-                                                <div class="progress-bar progress-bar-striped progress-bar-animated"
-                                                     role="progressbar" style="width:0"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+        <t:modal id="upload-modal" formId="upload-form" title="파일 업로드">
+            <jsp:attribute name="body">
+                <div class="container-fluid px-0">
+                    <div class="row" id="upload-file-list">
+                        <div class="col-12 pb-1 upload-file-item">
+                            <div class="upload-file-input">
+                                <button class="btn btn-link btn-sm px-1 text-danger upload-file-remove">
+                                    <i class="far fa-minus"></i></button>
+                                <label class="custom-file ml-2">
+                                    <input type="file" class="custom-file-input file-upload" required>
+                                    <span class="custom-file-control"></span>
+                                </label>
                             </div>
-                            <button type="button" class="btn btn-link btn-sm" id="upload-file-add">
-                                <i class="far fa-plus"></i> 추가하기...
-                            </button>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" id="upload-file-cancel"
-                                    data-dismiss="modal">취소
-                            </button>
-                            <div class="position-relative">
-                                <button type="submit" class="btn btn-primary" id="upload-files"><i
-                                        class="fas fa-upload"></i> 업로드
-                                </button>
-                                <div class="upload-file-loading d-none">
-                                    <div class="d-table w-100 h-100">
-                                        <div class="d-table-cell text-center align-middle">
-                                            <i class="fas fa-spinner fa-pulse"></i>
-                                        </div>
-                                    </div>
+                            <div class="upload-file-progress d-none">
+                                <span class="filename"></span>
+                                <div class="progress">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                         role="progressbar" style="width:0"></div>
                                 </div>
                             </div>
                         </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
-        </div>
+                <button type="button" class="btn btn-link btn-sm" id="upload-file-add">
+                    <i class="far fa-plus"></i> 추가하기...
+                </button>
+            </jsp:attribute>
+            <jsp:attribute name="footer">
+                <button type="button" class="btn btn-secondary" id="upload-file-cancel"
+                        data-dismiss="modal">취소
+                </button>
+                <div class="position-relative">
+                    <button type="submit" class="btn btn-primary" id="upload-files"><i
+                            class="fas fa-upload"></i> 업로드
+                    </button>
+                    <div class="upload-file-loading d-none">
+                        <div class="d-table w-100 h-100">
+                            <div class="d-table-cell text-center align-middle">
+                                <i class="fas fa-spinner fa-pulse"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </jsp:attribute>
+        </t:modal>
     </jsp:body>
 </t:bootstrap>
