@@ -4,7 +4,9 @@ import com.dbdbdeep.websoft.database.Database;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class UserModel {
 
@@ -34,6 +36,10 @@ public class UserModel {
 		else return new UserModel(id);
 	}
 
+	private static UserModel getUnchecked(int id) {
+		return new UserModel(id);
+	}
+
 	public static UserModel getUser(String username) throws SQLException {
 		Database db = Database.getDatabase();
 		Object idColumn = db.selectSingleColumn("SELECT id FROM user WHERE username=?", username);
@@ -48,6 +54,22 @@ public class UserModel {
 				username, password, name, email, isAdmin
 		);
 		return (id == null) ? null : new UserModel(id);
+	}
+
+	public static UserModel[] getUsers(int begin, int count) throws SQLException {
+		Database db = Database.getDatabase();
+		try (Connection conn = db.getConnection();
+		     PreparedStatement stmt = conn.prepareStatement("SELECT id FROM user ORDER BY id LIMIT ? OFFSET ?")) {
+			stmt.setInt(1, count);
+			stmt.setInt(2, begin);
+			try (ResultSet rs = stmt.executeQuery()) {
+				ArrayList<UserModel> users = new ArrayList<>();
+				while (rs.next()) {
+					users.add(UserModel.getUnchecked(rs.getInt(1)));
+				}
+				return users.toArray(new UserModel[0]);
+			}
+		}
 	}
 
 	public void delete() throws SQLException {
