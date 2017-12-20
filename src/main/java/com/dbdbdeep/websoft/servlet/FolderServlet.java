@@ -14,10 +14,52 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.Arrays;
 
 @WebServlet(name = "FolderServlet", urlPatterns = "/folder/*")
 public class FolderServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		try {
+			UserModel user = (UserModel) request.getSession(true).getAttribute("user");
+			if (user == null) {
+				response.sendRedirect("/login");
+				return;
+			}
+
+			String path = request.getPathInfo();
+			if (path == null) path = "/";
+
+			String[] splitPath = path.split("/");
+			FolderModel rootFolder = FolderModel.getRoot(user);
+			FolderModel baseFolder = rootFolder.transverse(splitPath);
+			if (baseFolder == null) {
+				response.sendError(HttpServletResponse.SC_NOT_FOUND);
+				return;
+			}
+
+			FolderModel target = baseFolder.getFolder(splitPath[splitPath.length - 1]);
+			String to = request.getParameter("to");
+			String type = request.getParameter("type");//move, copy
+			String[] splitTo = to.split("/");
+			FolderModel toFolder = rootFolder.transverse(Arrays.copyOf(splitTo, splitTo.length - 1));
+			if(toFolder == null){
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+				return;
+			}
+
+			if("copy".equals(type)){
+
+			}
+			else if("move".equals(type)){
+				target.setParent(toFolder);
+			}
+			else{
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+				return;
+			}
+		}catch (SQLException e){
+			throw new IOException(e);
+		}
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
