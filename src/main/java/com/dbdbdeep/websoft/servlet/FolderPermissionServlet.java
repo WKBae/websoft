@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 
-@WebServlet(name = "FolderPermissionServlet")
+@WebServlet(name = "FolderPermissionServlet" , urlPatterns = "/permission/folder/*")
 public class FolderPermissionServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
