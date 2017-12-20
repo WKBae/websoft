@@ -1,11 +1,12 @@
 package com.dbdbdeep.websoft.servlet;
 
-import com.dbdbdeep.websoft.models.FileModel;
+import com.dbdbdeep.websoft.database.Database;
 import com.dbdbdeep.websoft.models.FilePermissionModel;
 import com.dbdbdeep.websoft.models.FolderModel;
+import com.dbdbdeep.websoft.models.FolderPermissionModel;
 import com.dbdbdeep.websoft.models.UserModel;
+import org.json.simple.JSONArray;
 
-import javax.security.sasl.SaslException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -14,8 +15,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 
-@WebServlet(name = "FilePermissionServlet", urlPatterns = "/permission/file/*")
-public class FilePermissionServlet extends HttpServlet {
+@WebServlet(name = "FolderPermissionServlet" , urlPatterns = "/permission/folder/*")
+public class FolderPermissionServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			UserModel user = (UserModel) request.getSession(true).getAttribute("user");
@@ -37,16 +38,28 @@ public class FilePermissionServlet extends HttpServlet {
 				return;
 			}
 
-			FileModel file = baseFolder.getFile(splitPath[splitPath.length - 1]);
-			FilePermissionModel filePermission = FilePermissionModel.get(file, user);
+			FolderModel folder = baseFolder.getFolder(splitPath[splitPath.length - 1]);
+			UserModel permittee = UserModel.getUser(request.getParameter("permittee"));
+
 			String readable = request.getParameter("readable");
 			boolean isReadable = false;
-
 			if("Y".equals(readable)){
 				isReadable = true;
 			}
 			else if("N".equals(readable)){
 				isReadable = false;
+			}
+			else{
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+				return;
+			}
+			String writable = request.getParameter("writable");
+			boolean isWritable = false;
+			if("Y".equals(writable)){
+				isWritable = true;
+			}
+			else if("N".equals(writable)){
+				isWritable = false;
 			}
 			else{
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -61,25 +74,15 @@ public class FilePermissionServlet extends HttpServlet {
 			else if("N".equals(permittable)){
 				isPermittable = false;
 			}
-			else{
+			else {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;
 			}
 
-			if(!isReadable && !isPermittable){
-				if(filePermission != null) {
-					filePermission.delete();
-				}
-			}
-			else {
-				if(filePermission == null){
-					FilePermissionModel.create(file, user, isReadable, isPermittable);
-				}
-				else {
-					filePermission.setReadable(isReadable);
-					filePermission.setPermittable(isPermittable);
-				}
-			}
+			Database db = Database.getDatabase();
+			db.beginTransaction();
+			propagatePermission(folder, permittee, isReadable, isWritable, isPermittable);
+			db.endTransaction();
 
 			response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 		}catch (SQLException e){
@@ -89,5 +92,28 @@ public class FilePermissionServlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+	}
+
+	private void propagatePermission(FolderModel folder, UserModel permittee, boolean isReadable, boolean isWritable, boolean isPermittable) throws SQLException {
+		FolderPermissionModel folderPermission = FolderPermissionModel.get(folder, permittee);
+		if(!isReadable && !isWritable &&!isPermittable){
+			if(folderPermission != null){
+				folderPermission.delete();
+			}
+		}
+		else {
+			if(folderPermission == null){
+				FolderPermissionModel.create(folder, permittee, isReadable, isWritable, isPermittable);
+			}
+			else {
+				folderPermission.setReadable(isReadable);
+				folderPermission.setWritable(isWritable);
+				folderPermission.setPermittable(isPermittable);
+			}
+		}
+
+		for (FolderModel child : folder.getFolders()) {
+			propagatePermission(child, permittee, isReadable, isWritable, isPermittable);
+		}
 	}
 }

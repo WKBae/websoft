@@ -62,7 +62,7 @@ public class SharedFilesServlet extends HttpServlet {
 			request.setAttribute("path", path);
 			request.setAttribute("files", fileMap);
 			request.setAttribute("folders", folderMap);
-			request.getRequestDispatcher("/WEB-INF/jsp/search.jsp").forward(request, response);
+			request.getRequestDispatcher("/WEB-INF/jsp/shared_files.jsp").forward(request, response);
 		} catch(SQLException e) {
 			throw new IOException(e);
 		}
