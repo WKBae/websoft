@@ -15,8 +15,6 @@ import java.util.ArrayList;
 @WebServlet(name = "AdminServlet", urlPatterns = "/admin")
 public class AdminServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		int i;
-
 		try{
 			UserModel[] adusers = UserModel.getUsers(0,100); //총 100명까지 회원 배열에 입력
 			request.setAttribute("users", adusers);
