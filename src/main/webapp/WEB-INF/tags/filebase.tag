@@ -9,8 +9,7 @@
 
 <%@ attribute name="searchBase" %>
 <%@ attribute name="folderBase" %>
-<%@ attribute name="downloadBase" %>
-<%@ attribute name="uploadBase" %>
+<%@ attribute name="fileBase" %>
 
 <%@ attribute name="canCreate" type="java.lang.Boolean" %>
 <c:set var="canCreate" value="${empty canCreate? false : canCreate}"/>
@@ -125,7 +124,7 @@
                             <i class="far fa-plus"></i> 폴더 생성
                         </a>
 </c:if>
-<c:if test="${not empty uploadBase}">
+<c:if test="${canCreate}">
                         <a href="#" class="list-group-item list-group-item-action" data-toggle="modal"
                            data-target="#upload-modal" id="upload-btn">
                             <i class="far fa-upload"></i> 업로드
@@ -160,7 +159,7 @@
                                     <input type="checkbox" class="form-check-input position-static file-check">
                                 </label>
                             </div>
-                            <a href="<c:url value="${downloadBase}${file.key}"/>">
+                            <a href="<c:url value="${fileBase}${file.key}"/>">
                                 <i class="far fa-file"></i> ${file.value.name}
                             </a>
                         </div>
@@ -192,7 +191,7 @@
         </t:modal>
 </c:if>
 
-<c:if test="${not empty uploadBase}">
+<c:if test="${canCreate}">
         <t:modal id="upload-modal" formId="upload-form" title="파일 업로드">
             <jsp:attribute name="body">
                 <div class="container-fluid px-0">

@@ -10,5 +10,8 @@
 
         searchBase="/search"
         folderBase="/files"
-        downloadBase="/download"
+        fileBase="/file"
+
+        canCreate="false"
+        canDelete="false"
 />

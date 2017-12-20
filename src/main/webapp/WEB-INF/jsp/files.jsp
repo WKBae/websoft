@@ -8,8 +8,7 @@
 
         searchBase="/search"
         folderBase="/files"
-        downloadBase="/download"
-        uploadBase="/upload"
+        fileBase="/file"
 
         canCreate="true"
         canDelete="true"
