@@ -14,6 +14,31 @@ $typeBtns.on("change", applyChecked);
 applyChecked.apply($typeBtns[0]);
 
 
+function reloadPage() {
+    document.location.reload();
+}
+
+
+$("#folder-form").on('submit', function () {
+    this.disabled = true;
+    $.ajax({
+        type: "POST", // TODO change to PUT
+        url: "/createfolder" + currentPath,
+        data: {
+            'folderName': $("#folder-name-input").val()
+        },
+        success: function () {
+            reloadPage();
+        }
+    });
+    return false;
+});
+
+$('#folder-modal').on('shown.bs.modal', function () {
+    $('#folder-name-input').trigger('focus')
+});
+
+
 var $uploadFiles = $("#upload-file-list");
 $uploadFiles.on('change', "input[type=file].file-upload", function () {
     $(this).next('.custom-file-control').text(this.files[0].name);
@@ -37,7 +62,7 @@ $("#upload-file-form").on('submit', function (e) {
     var $progresses = $files.closest(".upload-file-item").find(".upload-file-progress .progress-bar");
 
     postUpload(filesToUpload, $progresses.get(), function () {
-        alert("completed"); // TODO
+        reloadPage();
     });
 
     function fileProgress(progress) {
@@ -66,7 +91,7 @@ $("#upload-file-form").on('submit', function (e) {
 
         $.ajax({
             type: 'POST',
-            url: uploadPath,
+            url: '/upload' + currentPath,
             data: formData,
             cache: false,
             contentType: false,
@@ -90,6 +115,7 @@ $("#upload-file-form").on('submit', function (e) {
     return false;
 });
 
+
 $("#upload-modal").on('hidden.bs.modal', function () {
     var $items = $(this).find(".upload-file-item");
     $items.filter(":not(:first-of-type)").remove()
@@ -97,6 +123,7 @@ $("#upload-modal").on('hidden.bs.modal', function () {
     $items.find("custom-form-control").text("");
     $(".upload-file-loading").addClass("d-none");
 });
+
 
 $("#delete-btn").on('click', function () {
     var $checkedFolders = $(".folder-check:checked").closest(".folder-entry");
@@ -106,7 +133,7 @@ $("#delete-btn").on('click', function () {
     function descCount() {
         count--;
         if (count == 0) {
-            alert("done");
+            reloadPage();
         }
     }
 

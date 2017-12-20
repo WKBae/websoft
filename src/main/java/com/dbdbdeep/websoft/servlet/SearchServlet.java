@@ -57,8 +57,8 @@ public class SearchServlet extends HttpServlet {
 				Collections.addAll(folders, folder.getFolders());
 			}
 
-			request.setAttribute("files", sFiles);
-			request.setAttribute("folders", sFolders);
+			request.setAttribute("files", sFiles.toArray(new FileModel[0]));
+			request.setAttribute("folders", sFolders.toArray(new FolderModel[0]));
 			request.getRequestDispatcher("/WEB-INF/jsp/search.jsp").forward(request, response);
 		} catch (SQLException e) {
 			throw new IOException(e);
