@@ -162,6 +162,44 @@ public class SharedFolderServlet extends HttpServlet {
 		}
 	}
 
+	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		try {
+			UserModel user = (UserModel) request.getSession(true).getAttribute("user");
+			if (user == null) {
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+				return;
+			}
+
+			String path = request.getPathInfo();
+			if (path == null) path = "/";
+
+			FolderModel rootFolder = FolderModel.getRoot(user);
+
+			String[] splitPath = path.split("/");
+			FolderModel baseFolder = rootFolder.transverse(Arrays.copyOf(splitPath, splitPath.length - 1));
+			if (baseFolder == null) {
+				response.sendError(HttpServletResponse.SC_NOT_FOUND);
+				return;
+			}
+
+			FolderPermissionModel baseFolderPermission = FolderPermissionModel.get(baseFolder, user);
+			if(baseFolderPermission == null || baseFolderPermission.isWritable()) {
+				response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			}
+
+			String folderName = splitPath[splitPath.length - 1];
+
+			if (baseFolder.getFolder(folderName) == null) {
+				FolderModel.create(baseFolder, folderName, user);
+			}
+
+			response.setStatus(HttpServletResponse.SC_CREATED);
+			response.setHeader("Content-Location", "/file" + path + (path.endsWith("/") ? "" : "/") + folderName + "/");
+		} catch (SQLException e) {
+			throw new IOException(e);
+		}
+	}
+
 	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {  //폴더 삭제
 		try {
 			UserModel user = (UserModel) request.getSession(true).getAttribute("user");
