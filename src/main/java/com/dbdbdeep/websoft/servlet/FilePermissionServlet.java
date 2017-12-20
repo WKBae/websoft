@@ -1,5 +1,7 @@
 package com.dbdbdeep.websoft.servlet;
 
+import com.dbdbdeep.websoft.models.FileModel;
+import com.dbdbdeep.websoft.models.FilePermissionModel;
 import com.dbdbdeep.websoft.models.FolderModel;
 import com.dbdbdeep.websoft.models.UserModel;
 
@@ -36,6 +38,48 @@ public class FilePermissionServlet extends HttpServlet {
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
 				return;
 			}
+
+			FileModel file = baseFolder.getFile(splitPath[splitPath.length - 1]);
+			FilePermissionModel filePermission = FilePermissionModel.get(file, user);
+
+			if(filePermission == null){
+				filePermission = FilePermissionModel.create(file, user, false, false);
+			}
+			String readable = request.getParameter("readable");
+			Boolean isReadable = false;
+			if("Y".equals(readable)){
+				isReadable = true;
+			}
+			else if("N".equals(readable)){
+				isReadable = false;
+			}
+			else{
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+				return;
+			}
+
+			String permittable = request.getParameter("permittable");
+			Boolean isPermittable = false;
+			if("Y".equals(permittable)){
+				isPermittable = true;
+			}
+			else if("N".equals(permittable)){
+				isPermittable = false;
+			}
+			else{
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+				return;
+			}
+
+			if(!isReadable && !isPermittable){
+				filePermission.delete();
+			}
+			else {
+				filePermission.setReadable(isReadable);
+				filePermission.setPermittable(isPermittable);
+			}
+
+			response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 		}catch (SQLException e){
 			throw new IOException(e);
 		}
