@@ -8,14 +8,17 @@
 <%@ attribute name="files" required="true" type="java.util.Map<java.lang.String, com.dbdbdeep.websoft.models.FileModel>" %>
 
 <%@ attribute name="searchBase" %>
-<%@ attribute name="folderBase" %>
+<%@ attribute name="listBase" %>
 <%@ attribute name="fileBase" %>
+<%@ attribute name="folderBase" %>
 
 <%@ attribute name="canCreate" type="java.lang.Boolean" %>
 <c:set var="canCreate" value="${empty canCreate? false : canCreate}"/>
-<%@ attribute name="canDelete" type="java.lang.Boolean" %>
-<c:set var="canDelete" value="${empty canDelete? false : canDelete}"/>
+<%@ attribute name="canModify" type="java.lang.Boolean" %>
+<c:set var="canModify" value="${empty canModify? false : canModify}"/>
 <%--TODO showPath--%>
+
+<c:set var="requestPath" value="${requestScope['javax.servlet.forward.request_uri']}"/>
 
 <t:bootstrap title="WebSoft :: ${path}">
     <jsp:attribute name="head">
@@ -35,11 +38,23 @@
                 left: 0;
                 right: 0;
             }
+
+            #file-list .folder-entry .folder-check, #file-list .file-entry .file-check {
+                visibility: hidden;
+            }
+            #file-list .folder-entry:hover .folder-check, #file-list .file-entry:hover .file-check {
+                visibility: visible;
+            }
+            #file-list.checkbox-visible .folder-entry .folder-check, #file-list.checkbox-visible .file-entry .file-check {
+                visibility: visible;
+            }
         </style>
     </jsp:attribute>
     <jsp:attribute name="script">
         <script>
             var currentPath = "${util:escapeJS(path)}";
+            var fileBase = "${util:escapeJS(fileBase)}";
+            var folderBase = "${util:escapeJS(folderBase)}";
         </script>
         <script src="<c:url value="/static/js/filelist.js"/>"></script>
     </jsp:attribute>
@@ -53,14 +68,14 @@
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item active">
+                    <li class="nav-item<c:if test="${requestPath.startsWith('/files')}"> active</c:if>">
                         <a class="nav-link" href="<c:url value="/files/"/>">파일</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">공유받은 파일</a>
+                    <li class="nav-item<c:if test="${requestPath.startsWith('/shared')}"> active</c:if>">
+                        <a class="nav-link" href="<c:url value="/shared/"/>">공유받은 파일</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">공유한 파일</a>
+                    <li class="nav-item<c:if test="${requestPath.startsWith('/sharing')}"> active</c:if>">
+                        <a class="nav-link" href="<c:url value="/sharing/"/>">공유한 파일</a>
                     </li>
                 </ul>
 <c:if test="${not empty searchBase}">
@@ -75,10 +90,9 @@
 </c:if>
             </div>
         </nav>
-
         <nav aria-label="folder path" role="navigation">
             <ol class="breadcrumb px-5">
-                <c:set var="linkPath"><c:url value="${folderBase}/"/></c:set>
+                <c:set var="linkPath"><c:url value="${listBase}/"/></c:set>
                 <c:choose>
                     <c:when test="${path != '/'}">
                         <li class="breadcrumb-item"><a href="<c:url value="${linkPath}"/>"><i
@@ -117,7 +131,7 @@
                         </label>
                     </div>
 
-                    <div class="list-group">
+                    <div class="list-group mb-3" id="normal-actions">
 <c:if test="${canCreate}">
                         <a href="#" class="list-group-item list-group-item-action" data-toggle="modal"
                            data-target="#folder-modal" id="folder-btn">
@@ -130,8 +144,35 @@
                             <i class="far fa-upload"></i> 업로드
                         </a>
 </c:if>
-<c:if test="${canDelete}">
-                        <a href="#" class="list-group-item list-group-item-action list-group-item-danger"
+                    </div>
+
+                    <div class="list-group d-none" id="choice-actions">
+<c:if test="${canModify}">
+                        <a href="#" class="list-group-item list-group-item-action action action-single"
+                           data-toggle="modal" data-target="#rename-modal" id="rename-btn">
+                            <i class="far fa-edit"></i> 이름 바꾸기
+                        </a>
+</c:if>
+<c:if test="${canModify}">
+                        <a href="#" class="list-group-item list-group-item-action action action-single action-multiple"
+                           id="copy-btn">
+                            <i class="far fa-copy"></i> 복사
+                        </a>
+</c:if>
+<c:if test="${canModify}">
+                        <a href="#" class="list-group-item list-group-item-action action action-single action-multiple"
+                           id="move-btn">
+                            <i class="far fa-inbox-out"></i> 이동
+                        </a>
+</c:if>
+<c:if test="${canModify}">
+                        <a href="#" class="list-group-item list-group-item-action action action-single action-multiple"
+                           id="permit-btn">
+                            <i class="far fa-file-check"></i> 권한 설정
+                        </a>
+</c:if>
+<c:if test="${canModify}">
+                        <a href="#" class="list-group-item list-group-item-action list-group-item-danger action action-single action-multiple"
                            id="delete-btn">
                             <i class="far fa-trash"></i> 삭제
                         </a>
@@ -139,7 +180,7 @@
                     </div>
                 </div>
 
-                <div class="col-12 col-md-9 order-md-first">
+                <div class="col-12 col-md-9 order-md-first" id="file-list">
                     <c:forEach var="folder" items="${folders}">
                         <div class="folder-entry" data-name="${folder.value.name}" data-path="${folder.key}">
                             <div class="form-check form-check-inline">
@@ -147,7 +188,7 @@
                                     <input type="checkbox" class="form-check-input position-static folder-check">
                                 </label>
                             </div>
-                            <a href="<c:url value="${folderBase}${folder.key}"/>">
+                            <a href="<c:url value="${listBase}${folder.key}"/>">
                                 <i class="far fa-folder-open"></i> ${folder.value.name}
                             </a>
                         </div>
@@ -189,6 +230,29 @@
                 </button>
             </jsp:attribute>
         </t:modal>
+</c:if>
+
+<c:if test="${canModify}">
+    <t:modal id="rename-modal" formId="rename-form" title="이름 바꾸기">
+    <jsp:attribute name="body">
+        <div class="form-group">
+            <label for="rename-input">새로운 이름</label>
+            <input type="text" class="form-control" id="rename-input" placeholder="바꿀 이름"
+                   required>
+            <div class="invalid-feedback">
+                이름을 입력해주세요.
+            </div>
+        </div>
+    </jsp:attribute>
+        <jsp:attribute name="footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            취소
+        </button>
+        <button type="submit" class="btn btn-primary">
+            확인
+        </button>
+    </jsp:attribute>
+    </t:modal>
 </c:if>
 
 <c:if test="${canCreate}">
@@ -239,7 +303,7 @@
         </t:modal>
 </c:if>
 
-<c:if test="${canDelete}">
+<c:if test="${canModify}">
         <t:modal id="delete-modal" formId="delete-form" title="파일 삭제">
             <jsp:attribute name="body">
                 아래 파일들을 삭제하시겠습니까?

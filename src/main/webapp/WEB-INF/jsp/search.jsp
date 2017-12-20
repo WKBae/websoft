@@ -9,9 +9,10 @@
         folders="${folders}"
 
         searchBase="/search"
-        folderBase="/files"
+        listBase="/files"
         fileBase="/file"
+        folderBase="/folder"
 
         canCreate="false"
-        canDelete="false"
+        canModify="true"
 />
