@@ -109,7 +109,7 @@ public class FolderPermissionModel {
 		return FolderModel.get(folderId);
 	}
 
-	public UserModel getUser(int id) throws SQLException {
+	public UserModel getUser() throws SQLException {
 		return UserModel.get(userId);
 	}
 

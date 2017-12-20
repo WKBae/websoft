@@ -6,6 +6,7 @@ import com.dbdbdeep.websoft.models.FolderModel;
 import com.dbdbdeep.websoft.models.FolderPermissionModel;
 import com.dbdbdeep.websoft.models.UserModel;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -13,7 +14,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.Arrays;
 
 @WebServlet(name = "FolderPermissionServlet" , urlPatterns = "/permission/folder/*")
 public class FolderPermissionServlet extends HttpServlet {
@@ -96,7 +99,47 @@ public class FolderPermissionServlet extends HttpServlet {
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		try {
+			UserModel user = (UserModel) request.getSession(true).getAttribute("user");
+			if (user == null) {
+				response.sendRedirect("/login");
+				return;
+			}
 
+			String path = request.getPathInfo();
+			if (path == null) {
+				response.sendRedirect("/files/");
+				return;
+			}
+			String[] splitPath = path.split("/");
+
+			FolderModel rootFolder = FolderModel.getRoot(user);
+			FolderModel baseFolder = rootFolder.transverse(splitPath);
+			if (baseFolder == null) {
+				response.sendError(HttpServletResponse.SC_NOT_FOUND);
+				return;
+			}
+
+			FolderPermissionModel[] folderPermissions = FolderPermissionModel.findPermissions(baseFolder);
+
+			JSONArray permissionList = new JSONArray();
+
+			for(FolderPermissionModel folderPermission : folderPermissions){
+				JSONObject obj = new JSONObject();
+				obj.put("user", folderPermission.getUser().getUsername());
+				obj.put("readable", folderPermission.isReadable());
+				obj.put("writable", folderPermission.isWritable());
+				obj.put("permittable", folderPermission.isPermittable());
+				permissionList.add(obj);
+			}
+
+			response.setContentType("application/json");
+			PrintWriter writer = response.getWriter();
+			writer.print(permissionList);
+
+		}catch (SQLException e){
+			throw new IOException(e);
+		}
 	}
 
 	private void propagatePermission(FolderModel folder, UserModel permittee, boolean isReadable, boolean isWritable, boolean isPermittable) throws SQLException {
