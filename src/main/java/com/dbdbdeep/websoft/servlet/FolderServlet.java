@@ -17,6 +17,9 @@ import java.sql.SQLException;
 
 @WebServlet(name = "FolderServlet", urlPatterns = "/folder/*")
 public class FolderServlet extends HttpServlet {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	}
+
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			UserModel user = (UserModel) request.getSession(true).getAttribute("user");
@@ -57,6 +60,7 @@ public class FolderServlet extends HttpServlet {
 			throw new IOException(e);
 		}
 	}
+
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			UserModel user = (UserModel) request.getSession(true).getAttribute("user");
