@@ -6,6 +6,7 @@ import com.dbdbdeep.websoft.models.UserModel;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +23,7 @@ import java.util.Arrays;
 import java.util.Date;
 
 @WebServlet(name = "FileServlet", urlPatterns = "/file/*")
+@MultipartConfig(fileSizeThreshold = 512 * 1024 * 1024, maxFileSize = 4L * 1024 * 1024 * 1024, maxRequestSize = 16L * 1024 * 1024 * 1024)
 public class FileServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		UserModel user = (UserModel) request.getSession(true).getAttribute("user");

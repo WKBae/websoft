@@ -3,7 +3,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="util" uri="http://websoft.dbdbdeep.com/tags/util" %>
 
-<%--TODO make files&folders as HashMap<String(path), File/FolderModel>--%>
 <t:filebase
         path="${path}"
         files="${files}"
@@ -12,5 +11,4 @@
         searchBase="/search"
         folderBase="/files"
         downloadBase="/download"
-        uploadBase="/upload"
 />

@@ -22,11 +22,8 @@ function reloadPage() {
 $("#folder-form").on('submit', function () {
     this.disabled = true;
     $.ajax({
-        type: "POST", // TODO change to PUT
-        url: "/createfolder" + currentPath,
-        data: {
-            'folderName': $("#folder-name-input").val()
-        },
+        type: "PUT", // TODO change to PUT
+        url: "/folder" + currentPath + $("#folder-name-input").val(),
         success: function () {
             reloadPage();
         }
@@ -41,7 +38,7 @@ $('#folder-modal').on('shown.bs.modal', function () {
 });
 
 
-var $uploadFiles = $("#upload-file-list");
+var $uploadFiles = $("#upload-list");
 
 $uploadFiles.on('change', "input[type=file].file-upload", function () {
     $(this).next('.custom-file-control').text(this.files[0].name);
@@ -49,14 +46,14 @@ $uploadFiles.on('change', "input[type=file].file-upload", function () {
     $(this).closest(".upload-file-item").remove();
 });
 
-$("#upload-file-add").on('click', function () {
-    var $cloned = $(".upload-file-item").eq(0).clone();
+$("#upload-add").on('click', function () {
+    var $cloned = $(".upload-item").eq(0).clone();
     $cloned.find("input[type=file]").val("");
     $cloned.find(".custom-file-control").text("");
     $uploadFiles.append($cloned);
 });
 
-$("#upload-file-form").on('submit', function (e) {
+$("#upload-form").on('submit', function (e) {
     var $files = $uploadFiles.find("input[type=file]");
     $files.attr("disabled", true);
     $("#upload-files").attr("disabled", true).next(".modal-loading").removeClass("d-none");
@@ -64,9 +61,18 @@ $("#upload-file-form").on('submit', function (e) {
     var filesToUpload = $files.map(function () {
         return this.files[0];
     }).get();
-    var $progresses = $files.closest(".upload-file-item").find(".upload-file-progress .progress-bar");
+    var $items = $files.closest(".upload-item");
+    var $progresses = $items.find(".upload-progress");
+    var $progressBars = $progresses.find(".progress-bar");
 
-    postUpload(filesToUpload, $progresses.get(), function () {
+    $items.each(function() {
+        var filename = $(this).find('input[type=file]')[0].files[0].name;
+        $(this).find('.filename').text(filename).prepend($('<i class="far fa-file"></i>'));
+    });
+    $items.find(".upload-file-input").addClass('d-none');
+    $progresses.removeClass("d-none");
+
+    postUpload(filesToUpload, $progressBars.get(), function () {
         reloadPage();
     });
 
@@ -95,8 +101,8 @@ $("#upload-file-form").on('submit', function (e) {
         formData.append("file", file);
 
         $.ajax({
-            type: 'POST',
-            url: '/upload' + currentPath,
+            type: 'PUT',
+            url: '/file' + currentPath,
             data: formData,
             cache: false,
             contentType: false,
@@ -186,14 +192,14 @@ $deleteForm.on('submit', function () {
     $folderInputs.each(function () {
         $.ajax({
             type: "DELETE",
-            url: "/deletefolder" + this.value
+            url: "/folder" + this.value
         }).always(descCount);
     });
 
     $fileInputs.each(function () {
         $.ajax({
             type: "DELETE",
-            url: "/deletefile" + this.value
+            url: "/file" + this.value
         }).always(descCount);
     });
 

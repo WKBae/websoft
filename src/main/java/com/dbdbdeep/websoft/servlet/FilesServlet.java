@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashMap;
 
 @WebServlet(name = "FilesServlet", urlPatterns = "/files/*")
 public class FilesServlet extends HttpServlet {
@@ -40,9 +41,25 @@ public class FilesServlet extends HttpServlet {
 			FolderModel[] folders = baseFolder.getFolders();
 			FileModel[] files = baseFolder.getFiles();
 
+			StringBuilder sb = new StringBuilder();
+			sb.append('/');
+			for(String spl : splitPath) {
+				sb.append(spl);
+				sb.append('/');
+			}
+			String currentPath = sb.toString();
+			HashMap<String, FolderModel> folderMap = new HashMap<>();
+			for(FolderModel folder : folders) {
+				folderMap.put(currentPath + folder.getName() + "/", folder);
+			}
+			HashMap<String, FileModel> fileMap = new HashMap<>();
+			for(FileModel file : files) {
+				fileMap.put(currentPath + file.getName(), file);
+			}
+
 			request.setAttribute("path", path);
-			request.setAttribute("folders", folders);
-			request.setAttribute("files", files);
+			request.setAttribute("folders", folderMap);
+			request.setAttribute("files", fileMap);
 			request.getRequestDispatcher("/WEB-INF/jsp/files.jsp").forward(request, response);
 		} catch (SQLException e) {
 			throw new IOException(e);

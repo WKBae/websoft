@@ -10,4 +10,7 @@
         folderBase="/files"
         downloadBase="/download"
         uploadBase="/upload"
+
+        canCreate="true"
+        canDelete="true"
 />

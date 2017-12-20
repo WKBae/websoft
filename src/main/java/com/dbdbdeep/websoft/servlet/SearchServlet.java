@@ -11,10 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 @WebServlet(name = "SearchServlet", urlPatterns = "/search/*")
 public class SearchServlet extends HttpServlet {
@@ -45,20 +42,36 @@ public class SearchServlet extends HttpServlet {
 				return;
 			}
 
-			ArrayList<FolderModel> sFolders = new ArrayList<>();
-			ArrayList<FileModel> sFiles = new ArrayList<>();
-			Queue<FolderModel> folders = new LinkedList<>();
-			folders.add(baseFolder);
+			HashMap<String, FolderModel> folders = new HashMap<>();
+			HashMap<String, FileModel> files = new HashMap<>();
+
+			Queue<FolderModel> folderQueue = new LinkedList<>();
+			HashMap<FolderModel, String> paths = new HashMap<>();
+			folderQueue.add(baseFolder);
+			paths.put(baseFolder, path);
 
 			FolderModel folder;
-			while ((folder = folders.poll()) != null) {
-				Collections.addAll(sFiles, folder.searchFiles(keyword));
-				Collections.addAll(sFolders, folder.searchFolders(keyword));
-				Collections.addAll(folders, folder.getFolders());
+			while ((folder = folderQueue.poll()) != null) {
+				FolderModel parent = folder.getParent();
+				String currentPath;
+				if(parent == null) {
+					currentPath = "";
+				} else {
+					currentPath = paths.get(parent) + "/" + folder.getName();
+				}
+				paths.put(folder, currentPath);
+
+				for(FolderModel found : folder.searchFolders(keyword)) {
+					folders.put(currentPath + "/" + found.getName() + "/", found);
+				}
+				for(FileModel found : folder.searchFiles(keyword)) {
+					files.put(currentPath + "/" + found.getName(), found);
+				}
+				Collections.addAll(folderQueue, folder.getFolders());
 			}
 
-			request.setAttribute("files", sFiles.toArray(new FileModel[0]));
-			request.setAttribute("folders", sFolders.toArray(new FolderModel[0]));
+			request.setAttribute("files", files);
+			request.setAttribute("folders", folders);
 			request.getRequestDispatcher("/WEB-INF/jsp/search.jsp").forward(request, response);
 		} catch (SQLException e) {
 			throw new IOException(e);

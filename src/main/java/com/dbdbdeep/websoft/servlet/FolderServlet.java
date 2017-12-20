@@ -117,12 +117,12 @@ public class FolderServlet extends HttpServlet {
 			FolderModel rootFolder = FolderModel.getRoot(user);
 
 			String[] splitPath = path.split("/");
-			FolderModel baseFolder = rootFolder.transverse(splitPath);
+			FolderModel baseFolder = rootFolder.transverse(Arrays.copyOf(splitPath, splitPath.length - 1));
 			if (baseFolder == null) {
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
 				return;
 			}
-			String folderName = request.getParameter("folderName");
+			String folderName = splitPath[splitPath.length - 1];
 
 			if (baseFolder.getFolder(folderName) == null) {
 				FolderModel.create(baseFolder, folderName, user);

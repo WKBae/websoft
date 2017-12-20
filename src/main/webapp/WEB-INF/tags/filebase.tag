@@ -4,13 +4,19 @@
 <%@ taglib prefix="util" uri="http://websoft.dbdbdeep.com/tags/util" %>
 
 <%@ attribute name="path" required="true" %>
-<%@ attribute name="folders" required="true" type="com.dbdbdeep.websoft.models.FolderModel[]" %>
-<%@ attribute name="files" required="true" type="com.dbdbdeep.websoft.models.FileModel[]" %>
+<%@ attribute name="folders" required="true" type="java.util.Map<java.lang.String, com.dbdbdeep.websoft.models.FolderModel>" %>
+<%@ attribute name="files" required="true" type="java.util.Map<java.lang.String, com.dbdbdeep.websoft.models.FileModel>" %>
 
 <%@ attribute name="searchBase" %>
 <%@ attribute name="folderBase" %>
 <%@ attribute name="downloadBase" %>
 <%@ attribute name="uploadBase" %>
+
+<%@ attribute name="canCreate" type="java.lang.Boolean" %>
+<c:set var="canCreate" value="${empty canCreate? false : canCreate}"/>
+<%@ attribute name="canDelete" type="java.lang.Boolean" %>
+<c:set var="canDelete" value="${empty canDelete? false : canDelete}"/>
+<%--TODO showPath--%>
 
 <t:bootstrap title="WebSoft :: ${path}">
     <jsp:attribute name="head">
@@ -19,7 +25,7 @@
                 box-shadow: none;
             }
 
-            .upload-file-item:first-of-type .upload-file-remove {
+            .upload-item:first-of-type .upload-remove {
                 visibility: hidden;
             }
 
@@ -58,6 +64,7 @@
                         <a class="nav-link" href="#">공유한 파일</a>
                     </li>
                 </ul>
+<c:if test="${not empty searchBase}">
                 <form method="GET" action="${searchBase}${path}" class="form-inline my-2 my-lg-0">
                     <div class="input-group">
                         <input class="form-control" type="search" name="keyword" placeholder="파일 검색">
@@ -66,6 +73,7 @@
                         </div>
                     </div>
                 </form>
+</c:if>
             </div>
         </nav>
 
@@ -111,44 +119,49 @@
                     </div>
 
                     <div class="list-group">
+<c:if test="${canCreate}">
                         <a href="#" class="list-group-item list-group-item-action" data-toggle="modal"
                            data-target="#folder-modal" id="folder-btn">
                             <i class="far fa-plus"></i> 폴더 생성
                         </a>
+</c:if>
+<c:if test="${not empty uploadBase}">
                         <a href="#" class="list-group-item list-group-item-action" data-toggle="modal"
                            data-target="#upload-modal" id="upload-btn">
                             <i class="far fa-upload"></i> 업로드
                         </a>
+</c:if>
+<c:if test="${canDelete}">
                         <a href="#" class="list-group-item list-group-item-action list-group-item-danger"
                            id="delete-btn">
                             <i class="far fa-trash"></i> 삭제
                         </a>
+</c:if>
                     </div>
                 </div>
 
                 <div class="col-12 col-md-9 order-md-first">
                     <c:forEach var="folder" items="${folders}">
-                        <div class="folder-entry" data-name="${folder.name}"
-                             data-path="${util:joinPath("", path, folder.name)}">
+                        <div class="folder-entry" data-name="${folder.value.name}" data-path="${folder.key}">
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
                                     <input type="checkbox" class="form-check-input position-static folder-check">
                                 </label>
                             </div>
-                            <a href="<c:url value="${util:joinPath(folderBase, path, folder.name)}"/>">
-                                <i class="far fa-folder-open"></i> ${folder.name}
+                            <a href="<c:url value="${folderBase}${folder.key}"/>">
+                                <i class="far fa-folder-open"></i> ${folder.value.name}
                             </a>
                         </div>
                     </c:forEach>
                     <c:forEach var="file" items="${files}">
-                        <div class="file-entry" data-path="${util:joinPath("", path, file.name)}">
+                        <div class="file-entry" data-name="${file.value.name}" data-path="${file.key}">
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">
                                     <input type="checkbox" class="form-check-input position-static file-check">
                                 </label>
                             </div>
-                            <a href="<c:url value="${util:joinPath(downloadBase, path, file.name)}"/>">
-                                <i class="far fa-file"></i> ${file.name}
+                            <a href="<c:url value="${downloadBase}${file.key}"/>">
+                                <i class="far fa-file"></i> ${file.value.name}
                             </a>
                         </div>
                     </c:forEach>
@@ -156,6 +169,7 @@
             </div>
         </div>
 
+<c:if test="${canCreate}">
         <t:modal id="folder-modal" formId="folder-form" title="폴더 생성...">
             <jsp:attribute name="body">
                 <div class="form-group">
@@ -176,21 +190,23 @@
                 </button>
             </jsp:attribute>
         </t:modal>
+</c:if>
 
+<c:if test="${not empty uploadBase}">
         <t:modal id="upload-modal" formId="upload-form" title="파일 업로드">
             <jsp:attribute name="body">
                 <div class="container-fluid px-0">
-                    <div class="row" id="upload-file-list">
-                        <div class="col-12 pb-1 upload-file-item">
+                    <div class="row" id="upload-list">
+                        <div class="col-12 pb-1 upload-item">
                             <div class="upload-file-input">
-                                <button class="btn btn-link btn-sm px-1 text-danger upload-file-remove">
+                                <button class="btn btn-link btn-sm px-1 text-danger upload-remove">
                                     <i class="far fa-minus"></i></button>
                                 <label class="custom-file ml-2">
                                     <input type="file" class="custom-file-input file-upload" required>
                                     <span class="custom-file-control"></span>
                                 </label>
                             </div>
-                            <div class="upload-file-progress d-none">
+                            <div class="upload-progress d-none">
                                 <span class="filename"></span>
                                 <div class="progress">
                                     <div class="progress-bar progress-bar-striped progress-bar-animated"
@@ -200,12 +216,12 @@
                         </div>
                     </div>
                 </div>
-                <button type="button" class="btn btn-link btn-sm" id="upload-file-add">
+                <button type="button" class="btn btn-link btn-sm" id="upload-add">
                     <i class="far fa-plus"></i> 추가하기...
                 </button>
             </jsp:attribute>
             <jsp:attribute name="footer">
-                <button type="button" class="btn btn-secondary" id="upload-file-cancel"
+                <button type="button" class="btn btn-secondary" id="upload-cancel"
                         data-dismiss="modal">취소
                 </button>
                 <div class="position-relative">
@@ -222,7 +238,9 @@
                 </div>
             </jsp:attribute>
         </t:modal>
+</c:if>
 
+<c:if test="${canDelete}">
         <t:modal id="delete-modal" formId="delete-form" title="파일 삭제">
             <jsp:attribute name="body">
                 아래 파일들을 삭제하시겠습니까?
@@ -248,6 +266,7 @@
                 </div>
             </jsp:attribute>
         </t:modal>
+</c:if>
 
     </jsp:body>
 </t:bootstrap>
