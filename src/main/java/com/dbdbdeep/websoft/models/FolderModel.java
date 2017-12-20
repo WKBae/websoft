@@ -53,7 +53,7 @@ public class FolderModel {
 	public static FolderModel create(FolderModel parent, String name, UserModel owner, Date created) throws SQLException {
 		Database db = Database.getDatabase();
 		Integer id = db.insertGetId(
-				"INSERT INTO user (parent, name, owner, created) VALUES (?, ?, ?, ?)",
+				"INSERT INTO folder (parent, name, owner, created) VALUES (?, ?, ?, ?)",
 				parent != null ? parent.getId() : null,
 				name,
 				owner != null ? owner.getId() : null,
@@ -65,7 +65,7 @@ public class FolderModel {
 	public static FolderModel create(FolderModel parent, String name, UserModel owner) throws SQLException {
 		Database db = Database.getDatabase();
 		Integer id = db.insertGetId(
-				"INSERT INTO user (parent, name, owner) VALUES (?, ?, ?)",
+				"INSERT INTO folder (parent, name, owner) VALUES (?, ?, ?)",
 				parent != null ? parent.getId() : null,
 				name,
 				owner != null ? owner.getId() : null
