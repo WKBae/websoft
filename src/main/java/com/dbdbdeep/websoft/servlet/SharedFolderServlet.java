@@ -31,7 +31,7 @@ public class SharedFolderServlet extends HttpServlet {
 			if (path == null) path = "/";
 			String[] splitPath = path.split("/");
 
-			int rootId = Integer.parseInt(splitPath[0]);
+			int rootId = Integer.parseInt(splitPath[1]);
 			FolderModel rootFolder = FolderModel.get(rootId);
 			if(rootFolder == null) {
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -43,7 +43,13 @@ public class SharedFolderServlet extends HttpServlet {
 				return;
 			}
 
-			FolderModel baseFolder = rootFolder.transverse(Arrays.copyOf(splitPath, splitPath.length - 1));
+			FolderModel baseFolder;
+			if(splitPath.length == 2) {
+				baseFolder = rootFolder;
+			} else {
+				baseFolder = rootFolder.getFolder(splitPath[2]);
+				baseFolder = baseFolder.transverse(Arrays.copyOfRange(splitPath, 2, splitPath.length));
+			}
 			if (baseFolder == null) {
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
 				return;
@@ -123,7 +129,7 @@ public class SharedFolderServlet extends HttpServlet {
 			if (path == null) path = "/";
 			String[] splitPath = path.split("/");
 
-			int rootId = Integer.parseInt(splitPath[0]);
+			int rootId = Integer.parseInt(splitPath[1]);
 			FolderModel rootFolder = FolderModel.get(rootId);
 			if(rootFolder == null) {
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -172,10 +178,13 @@ public class SharedFolderServlet extends HttpServlet {
 
 			String path = request.getPathInfo();
 			if (path == null) path = "/";
-
-			FolderModel rootFolder = FolderModel.getRoot(user);
-
 			String[] splitPath = path.split("/");
+			int rootId = Integer.parseInt(splitPath[1]);
+			FolderModel rootFolder = FolderModel.get(rootId);
+			if(rootFolder == null) {
+				response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			}
+
 			FolderModel baseFolder = rootFolder.transverse(Arrays.copyOf(splitPath, splitPath.length - 1));
 			if (baseFolder == null) {
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -210,7 +219,7 @@ public class SharedFolderServlet extends HttpServlet {
 				String path = request.getPathInfo();
 				String[] splitPath = path.split("/");
 
-				int rootId = Integer.parseInt(splitPath[0]);
+				int rootId = Integer.parseInt(splitPath[1]);
 				FolderModel rootFolder = FolderModel.get(rootId);
 				if(rootFolder == null) {
 					response.sendError(HttpServletResponse.SC_NOT_FOUND);

@@ -29,7 +29,7 @@ public class SharedFileServlet extends HttpServlet {
 			if (path == null) path = "/";
 			String[] splitPath = path.split("/");
 
-			int rootId = Integer.parseInt(splitPath[0]);
+			int rootId = Integer.parseInt(splitPath[1]);
 			FolderModel rootFolder = FolderModel.get(rootId);
 			if(rootFolder == null) {
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -128,13 +128,20 @@ public class SharedFileServlet extends HttpServlet {
 				String[] splitPath = path.split("/");
 				String filename = splitPath[splitPath.length - 1];
 
-				int rootId = Integer.parseInt(splitPath[0]);
+				int rootId = Integer.parseInt(splitPath[1]);
 				FolderModel rootFolder = FolderModel.get(rootId);
 				if(rootFolder == null) {
 					response.sendError(HttpServletResponse.SC_NOT_FOUND);
+					return;
 				}
 
-				FolderModel baseFolder = rootFolder.transverse(Arrays.copyOf(splitPath, splitPath.length - 1));
+				FolderModel baseFolder;
+				if(splitPath.length == 2) {
+					baseFolder = rootFolder;
+				} else {
+					baseFolder = rootFolder.getFolder(splitPath[2]);
+					baseFolder = baseFolder.transverse(Arrays.copyOfRange(splitPath, 2, splitPath.length - 1));
+				}
 				if (baseFolder == null) {
 					response.sendError(HttpServletResponse.SC_NOT_FOUND);
 					return;
@@ -145,9 +152,10 @@ public class SharedFileServlet extends HttpServlet {
 					response.sendError(HttpServletResponse.SC_NOT_FOUND);
 					return;
 				}
-				FilePermissionModel downloadFilePermission = FilePermissionModel.get(downloadFile, user);
-				if(downloadFilePermission == null) {
+				FolderPermissionModel baseFolderPermission = FolderPermissionModel.get(baseFolder, user);
+				if(baseFolderPermission == null || !baseFolderPermission.isReadable()) {
 					response.sendError(HttpServletResponse.SC_FORBIDDEN);
+					return;
 				}
 
 				downloadFile.getContent(new FileModel.ContentReader() {
@@ -186,7 +194,7 @@ public class SharedFileServlet extends HttpServlet {
 				String[] splitPath = path.split("/");
 				String filename = splitPath[splitPath.length - 1];
 
-				int rootId = Integer.parseInt(splitPath[0]);
+				int rootId = Integer.parseInt(splitPath[1]);
 				FolderModel rootFolder = FolderModel.get(rootId);
 				if(rootFolder == null) {
 					response.sendError(HttpServletResponse.SC_NOT_FOUND);

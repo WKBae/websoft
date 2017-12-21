@@ -29,7 +29,7 @@ public class SharedFolderPermissionServlet extends HttpServlet {
 				return;
 			}
 			String[] splitPath = path.split("/");
-			int rootId = Integer.parseInt(splitPath[0]);
+			int rootId = Integer.parseInt(splitPath[1]);
 			FolderModel rootFolder = FolderModel.get(rootId);
 			if(rootFolder == null) {
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
