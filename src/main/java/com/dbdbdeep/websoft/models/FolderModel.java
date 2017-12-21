@@ -61,9 +61,11 @@ public class FolderModel {
 		);
 		if(id == null) return null;
 		FolderModel newFolder = new FolderModel(id);
-		FolderPermissionModel[] permissions = FolderPermissionModel.findPermissions(parent);
-		for(FolderPermissionModel permission : permissions) {
-			permission.clone(newFolder);
+		if(parent != null) {
+			FolderPermissionModel[] permissions = FolderPermissionModel.findPermissions(parent);
+			for (FolderPermissionModel permission : permissions) {
+				permission.clone(newFolder);
+			}
 		}
 		return newFolder;
 	}
@@ -76,7 +78,15 @@ public class FolderModel {
 				name,
 				owner != null ? owner.getId() : null
 		);
-		return (id == null) ? null : new FolderModel(id);
+		if(id == null) return null;
+		FolderModel newFolder = new FolderModel(id);
+		if(parent != null) {
+			FolderPermissionModel[] permissions = FolderPermissionModel.findPermissions(parent);
+			for (FolderPermissionModel permission : permissions) {
+				permission.clone(newFolder);
+			}
+		}
+		return newFolder;
 	}
 
 	public static FolderModel[] getSharing(UserModel owner) throws SQLException {

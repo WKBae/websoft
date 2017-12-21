@@ -25,8 +25,8 @@ public class SharedFilesServlet extends HttpServlet {
 				return;
 			}
 
-			String path = request.getPathInfo();System.out.println(path);
-			if (path == null) {
+			String path = request.getPathInfo();
+			if (path == null || "/".equals(path)) {
 				response.sendRedirect("/shared/");
 				return;
 			}
@@ -44,7 +44,13 @@ public class SharedFilesServlet extends HttpServlet {
 				return;
 			}
 
-			FolderModel baseFolder = rootFolder.transverse(Arrays.copyOfRange(splitPath, 2, splitPath.length));
+			FolderModel baseFolder;
+			if(splitPath.length == 2) {
+				baseFolder = rootFolder;
+			} else {
+				baseFolder = rootFolder.getFolder(splitPath[2]);
+				baseFolder = baseFolder.transverse(Arrays.copyOfRange(splitPath, 2, splitPath.length));
+			}
 			if (baseFolder == null) {
 				response.sendRedirect("/shared/");
 				return;
@@ -55,11 +61,11 @@ public class SharedFilesServlet extends HttpServlet {
 
 			HashMap<String, FolderModel> folderMap = new HashMap<>();
 			for(FolderModel folder : folders) {
-				folderMap.put("/" + folder.getId() + "/", folder);
+				folderMap.put(path + folder.getName() + "/", folder);
 			}
 			HashMap<String, FileModel> fileMap = new HashMap<>();
 			for(FileModel file : files) {
-				fileMap.put("/" + file.getId() + "/", file);
+				fileMap.put(path + file.getName(), file);
 			}
 
 			request.setAttribute("path", path);

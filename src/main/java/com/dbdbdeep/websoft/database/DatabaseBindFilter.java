@@ -32,7 +32,6 @@ public class DatabaseBindFilter implements Filter {
 		cpds.setUser(config.getInitParameter("user"));
 		cpds.setPassword(config.getInitParameter("password"));
 		cpds.setMaxStatementsPerConnection(50);
-		cpds.setInitialPoolSize(1);
 		cpds.setAutoCommitOnClose(true);
 		cpds.setPreferredTestQuery("SELECT 1");
 		cpds.setIdleConnectionTestPeriod(10);

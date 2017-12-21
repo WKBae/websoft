@@ -1,6 +1,9 @@
 package com.dbdbdeep.websoft.servlet;
 
-import com.dbdbdeep.websoft.models.*;
+import com.dbdbdeep.websoft.models.FileModel;
+import com.dbdbdeep.websoft.models.FolderModel;
+import com.dbdbdeep.websoft.models.FolderPermissionModel;
+import com.dbdbdeep.websoft.models.UserModel;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -29,7 +32,7 @@ public class SharingServlet extends HttpServlet {
 			//  폴더의 최상위 폴더 찾기
 			HashSet<FolderModel> rootFolders = new HashSet<>();  //최상위 폴더들만 갖고있는 변수
 			for (int i = 0; i < sharingFolders.length; i++) {
-				FolderModel folder = sharingFolders[i].get(i);
+				FolderModel folder = sharingFolders[i];
 				boolean topmostFound = false;
 				while (!topmostFound) {
 					FolderModel parentFolder = folder.getParent();  //folder의 부모폴더 가져오기

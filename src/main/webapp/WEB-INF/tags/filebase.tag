@@ -90,6 +90,9 @@
                     </div>
                 </form>
 </c:if>
+                <form class="form-inline ml-3">
+                    <a href="<c:url value="/logout"/>" class="btn btn-outline-secondary">로그아웃</a>
+                </form>
             </div>
         </nav>
         <nav aria-label="folder path" role="navigation">

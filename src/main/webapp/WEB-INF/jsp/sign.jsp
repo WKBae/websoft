@@ -8,6 +8,13 @@
 <c:set var="nameValidity" value="${errors.contains('NAME_EMPTY')? ' is-invalid' : ''}"/>
 
 <t:bootstrap title="WebSoft :: 회원가입">
+    <jsp:attribute name="head">
+        <style>
+            body {
+                background: #EEE;
+            }
+        </style>
+    </jsp:attribute>
     <jsp:attribute name="script">
         <script>
             var $pw = $("#password");
