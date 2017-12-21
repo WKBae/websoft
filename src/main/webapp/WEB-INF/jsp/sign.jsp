@@ -55,7 +55,7 @@
     <jsp:body>
         <div class="container">
             <div class="row">
-                <div class="col">
+                <div class="col-6 offset-3 mt-4 p-3 rounded" style="background: #FFF;">
                     <form action="<c:url value="/sign"/>" method="POST" id="sign-form" novalidate>
                         <div class="form-group">
                             <label for="username">아이디</label>
@@ -104,7 +104,8 @@
                             <input type="email" class="form-control" name="email" id="email" placeholder="Email"
                                    value="${email}">
                         </div>
-                        <button type="submit" class="btn btn-primary">회원가입</button>
+                        <button type="submit" class="btn btn-lg btn-primary w-100 mt-3">회원가입</button>
+                        <a href="<c:url value="/login"/>" class="btn btn-link w-100 text-center">이미 아이디가 있나요? 로그인하기</a>
                     </form>
                 </div>
             </div>
