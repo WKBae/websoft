@@ -55,7 +55,7 @@
     <jsp:body>
         <div class="container">
             <div class="row">
-                <div class="col-6 offset-3 mt-4 p-3 rounded" style="background: #FFF;">
+                <div class="col col-md-6 offset-md-3 mt-4 p-3 rounded" style="background: #FFF;">
                     <form action="<c:url value="/sign"/>" method="POST" id="sign-form" novalidate>
                         <div class="form-group">
                             <label for="username">아이디</label>

@@ -1,10 +1,12 @@
 package com.dbdbdeep.websoft.servlet;
 
-import com.dbdbdeep.websoft.models.*;
+import com.dbdbdeep.websoft.models.FileModel;
+import com.dbdbdeep.websoft.models.FilePermissionModel;
+import com.dbdbdeep.websoft.models.FolderModel;
+import com.dbdbdeep.websoft.models.UserModel;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import javax.security.sasl.SaslException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -75,7 +77,7 @@ public class FilePermissionServlet extends HttpServlet {
 			}
 			String[] splitPath = path.split("/");
 			FolderModel rootFolder = FolderModel.getRoot(user);
-			FolderModel baseFolder = rootFolder.transverse(splitPath);
+			FolderModel baseFolder = rootFolder.transverse(Arrays.copyOf(splitPath, splitPath.length - 1));
 			if (baseFolder == null) {
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
 				return;

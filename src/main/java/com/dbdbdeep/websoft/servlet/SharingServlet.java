@@ -40,8 +40,8 @@ public class SharingServlet extends HttpServlet {
 						rootFolders.add(folder);
 						topmostFound = true;
 					} else {
-						FolderPermissionModel checkFolder = FolderPermissionModel.get(parentFolder, user);
-						if (checkFolder == null) {  //부모 폴더에 사용자가 권한이 없을 때
+						FolderPermissionModel[] checkFolders = FolderPermissionModel.findPermissions(parentFolder);
+						if (checkFolders == null || checkFolders.length == 0) {  //부모 폴더에 사용자가 권한이 없을 때
 							rootFolders.add(folder);
 							topmostFound = true;
 						}

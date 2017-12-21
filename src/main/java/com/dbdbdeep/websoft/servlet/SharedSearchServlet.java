@@ -12,10 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 @WebServlet(name = "SharedSearchServlet", urlPatterns = "/shared/search/*")
 public class SharedSearchServlet extends HttpServlet {
@@ -30,11 +27,12 @@ public class SharedSearchServlet extends HttpServlet {
 			String keyword = request.getParameter("keyword");
 			String path = request.getPathInfo();
 			if (path == null) {
-				response.sendRedirect(response.encodeRedirectURL("shared/search/?keyword=" + keyword));
+				//response.sendRedirect(response.encodeRedirectURL("shared/search/?keyword=" + keyword));
+				response.sendError(HttpServletResponse.SC_NOT_FOUND);
 				return;
 			}
 			if (keyword == null || keyword.length() == 0) {
-				response.sendRedirect(response.encodeRedirectURL("/files" + path));
+				response.sendRedirect(response.encodeRedirectURL("/shared/files" + path));
 				return;
 			}
 
@@ -43,32 +41,51 @@ public class SharedSearchServlet extends HttpServlet {
 			FolderModel rootFolder = FolderModel.get(rootId);
 			if(rootFolder == null) {
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
+				return;
 			}
 
-			FolderModel baseFolder = rootFolder.transverse(splitPath);
+			FolderModel baseFolder;
+			if(splitPath.length == 2) {
+				baseFolder = rootFolder;
+			} else {
+				baseFolder = rootFolder.getFolder(splitPath[2]);
+				baseFolder = baseFolder.transverse(Arrays.copyOfRange(splitPath, 2, splitPath.length));
+			}
 			if (baseFolder == null) {
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
 				return;
 			}
 
-			ArrayList<FolderModel> sFolders = new ArrayList<>();
-			ArrayList<FileModel> sFiles = new ArrayList<>();
-			Queue<FolderModel> folders = new LinkedList<>();
-			folders.add(baseFolder);
+			HashMap<String, FolderModel> folders = new HashMap<>();
+			HashMap<String, FileModel> files = new HashMap<>();
+
+			Queue<FolderModel> folderQueue = new LinkedList<>();
+			HashMap<FolderModel, String> paths = new HashMap<>();
+			folderQueue.add(baseFolder);
+			paths.put(baseFolder, path);
 
 			FolderModel folder;
-			while ((folder = folders.poll()) != null) {
-				FolderPermissionModel folderPermissionModel = FolderPermissionModel.get(folder, user);
-				if(folderPermissionModel == null) {
-					continue;
+			while ((folder = folderQueue.poll()) != null) {
+				FolderModel parent = folder.getParent();
+				String currentPath;
+				if(parent == null) {
+					currentPath = "";
+				} else {
+					currentPath = paths.get(parent) + "/" + folder.getName();
 				}
-				Collections.addAll(sFiles, folder.searchFiles(keyword));
-				Collections.addAll(sFolders, folder.searchFolders(keyword));
-				Collections.addAll(folders, folder.getFolders());
+				paths.put(folder, currentPath);
+
+				for(FolderModel found : folder.searchFolders(keyword)) {
+					folders.put(currentPath + "/" + found.getName() + "/", found);
+				}
+				for(FileModel found : folder.searchFiles(keyword)) {
+					files.put(currentPath + "/" + found.getName(), found);
+				}
+				Collections.addAll(folderQueue, folder.getFolders());
 			}
 
-			request.setAttribute("files", sFiles.toArray(new FileModel[0]));
-			request.setAttribute("folders", sFolders.toArray(new FolderModel[0]));
+			request.setAttribute("files", files);
+			request.setAttribute("folders", folders);
 			request.getRequestDispatcher("/WEB-INF/jsp/shared_search.jsp").forward(request, response);
 		} catch (SQLException e) {
 			throw new IOException(e);

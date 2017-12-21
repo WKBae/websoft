@@ -13,7 +13,7 @@
     <jsp:body>
         <div class="container">
             <div class="row">
-                <div class="col-6 offset-3 mt-4 p-3 rounded" style="background: #FFF;">
+                <div class="col col-md-6 offset-md-3 mt-4 p-3 rounded" style="background: #FFF;">
                     <form action="<c:url value="/login"/>" method="POST" id="login-form" novalidate>
                         <c:if test="${not empty error}">
                             <div class="alert alert-danger">

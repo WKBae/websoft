@@ -80,7 +80,7 @@ public class FilePermissionModel {
 		Database db = Database.getDatabase();
 		try (Connection conn = db.getConnection()) {
 			PreparedStatement stmt = conn.prepareStatement(
-					"INSERT INTO file_permission (file_id, user_id, readable, permittable) VALUES (?, ?, ?, ?, ?)");
+					"INSERT INTO file_permission (file_id, user_id, readable, permittable) VALUES (?, ?, ?, ?)");
 			stmt.setInt(1, fileModel.getId());
 			stmt.setInt(2, userModel.getId());
 			stmt.setBoolean(3, readable);
