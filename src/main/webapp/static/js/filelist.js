@@ -350,4 +350,68 @@
             }
         });
     })();
+
+    (function filePermission() {
+        var $form = $("#permit-file-form");
+        $form.on('submit', function () {
+            var $choosen = $fileList.find('.file-check:checked').closest('.file-entry');
+            var $entries = $form.find('.permission-entry');
+            var count = $entries.length;
+
+            function descCount() {
+                count--;
+                if (count == 0) {
+                    reloadPage();
+                }
+            }
+
+            $entries.each(function() {
+                $.ajax({
+                    type: "POST",
+                    url: permissionBase + "/file" + $choosen.data('path'),
+                    data: {
+                        permittee: $(this).find('.permission-username').val(),
+                        readable: $(this).find('.permission-readable')[0].checked? "Y" : "N",
+                        permittable: $(this).find('.permission-permittable')[0].checked? "Y" : "N"
+                    }
+                }).always(function() {
+                    descCount();
+                });
+            })
+        });
+
+        $("#permit-file-modal").on('show.bs.modal', function () {
+            var $choosen = $fileList.find('.file-check:checked').closest('.file-entry');
+            $("#permit-file-table").empty();
+            $.ajax({
+                type: "GET",
+                url: permissionBase + "/file" + $choosen.data('path'),
+                success: function(data) {
+                    var $table = $("#permit-file-table");
+                    for(var i = 0; i < data.length; i++) {
+                        var $tdUser = $('<td></td>').append($('<input type="text" class="permission-username" disabled>').val(data[i].user));
+                        var $tdRead = $('<td></td>').append($('<input type="checkbox" class="permission-readable">').attr('checked', data[i].readable));
+                        var $tdPermit = $('<td></td>').append($('<input type="checkbox" class="permission-permittable">').attr('checked', data[i].permittable));
+                        var $tr = $('<tr class="permission-entry"></tr>').append($tdUser, $tdRead, $tdPermit);
+                        $tr.appendTo($table);
+                    }
+                }
+            });
+        });
+        $("#permit-file-add").on('click', function() {
+            var $tdUser = $('<td></td>').append($('<input type="text" class="permission-username">'));
+            var $tdRead = $('<td></td>').append($('<input type="checkbox" class="permission-readable">'));
+            var $tdPermit = $('<td></td>').append($('<input type="checkbox" class="permission-permittable">'));
+            var $tr = $('<tr class="permission-entry"></tr>').append($tdUser, $tdRead, $tdPermit);
+            $tr.appendTo("#permit-file-table");
+            return false;
+        });
+        $("#permit-file-table").on('change', ".permission-readable,.permission-permittable", function() {
+            var $entry = $(this).closest('.permission-entry');
+            $entry.find('.permission-readable,.permission-permittable').attr('disabled', false);
+            if($entry.find('.permission-permittable').attr('checked')) {
+                $entry.find('.permission-readable').attr('checked', true).attr('disabled', true);
+            }
+        });
+    })();
 })(document, jQuery);

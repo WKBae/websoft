@@ -391,6 +391,13 @@
                             <th scope="col">권한부여</th>
                         </tr>
                     </thead>
+                    <tfoot>
+                    <tr>
+                        <td colspan="3">
+                            <button role="button" class="btn btn-link" id="permit-file-add"><i class="far fa-plus"></i> 추가하기</button>
+                        </td>
+                    </tr>
+                    </tfoot>
                     <tbody id="permit-file-table">
                     </tbody>
                 </table>
